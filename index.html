@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIPERAWAN TRANTIB — Kabupaten Badung</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0a1017; --bg2:#0d141d; --panel:#101a26; --panel2:#14202e; --line:#1d2c3d; --line2:#27394d;
+  --ink:#e8eef5; --mut:#8ba0b5; --dim:#5c7186;
+  --gold:#f0b429; --gold2:#ffd166;
+  --red:#ff5252; --org:#ff9838; --grn:#3ddc84; --cyan:#4cc9f0; --vio:#b388ff;
+  --disp:'Barlow Condensed',sans-serif; --body:'Plus Jakarta Sans',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(900px 500px at 85% -10%,rgba(240,180,41,.07),transparent 60%),
+             radial-gradient(800px 600px at -10% 110%,rgba(76,201,240,.06),transparent 60%),
+             repeating-linear-gradient(0deg,transparent 0 39px,rgba(255,255,255,.016) 39px 40px),
+             repeating-linear-gradient(90deg,transparent 0 39px,rgba(255,255,255,.016) 39px 40px);}
+body::after{content:'';position:fixed;left:0;right:0;height:120px;top:-120px;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,transparent,rgba(240,180,41,.035),transparent);animation:scan 11s linear infinite}
+@keyframes scan{to{transform:translateY(calc(100vh + 240px))}}
+.hidden{display:none!important}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:9px}::-webkit-scrollbar-track{background:transparent}
+h1,h2,h3,.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:.06em}
+.mono{font-family:var(--mono)}
+a{color:var(--cyan)}
+button{font-family:var(--body);cursor:pointer}
+input,select,textarea{font-family:var(--body);background:#0c1520;border:1px solid var(--line2);color:var(--ink);border-radius:8px;padding:9px 11px;font-size:13px;outline:none;transition:.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(240,180,41,.12)}
+label{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;font-weight:600;display:block;margin:10px 0 5px}
+.btn{border:1px solid var(--line2);background:var(--panel2);color:var(--ink);padding:9px 15px;border-radius:8px;font-weight:600;font-size:13px;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{border-color:var(--gold);transform:translateY(-1px)}
+.btn.gold{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1204;border-color:var(--gold);font-weight:800}
+.btn.gold:hover{box-shadow:0 4px 18px rgba(240,180,41,.35)}
+.btn.red{border-color:#5c2230;color:#ff8f8f}.btn.red:hover{background:#2a1218}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;border:1px solid var(--line2);background:#0c1520}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.badge{font-family:var(--disp);font-weight:700;letter-spacing:.08em;padding:3px 10px;border-radius:5px;font-size:12.5px;text-transform:uppercase}
+.b-T{background:rgba(255,82,82,.14);color:var(--red);border:1px solid rgba(255,82,82,.4)}
+.b-S{background:rgba(255,152,56,.13);color:var(--org);border:1px solid rgba(255,152,56,.4)}
+.b-R{background:rgba(61,220,132,.12);color:var(--grn);border:1px solid rgba(61,220,132,.4)}
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;position:relative}
+.panel-h{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.panel-h h3{font-size:17px;color:var(--ink)}
+.panel-h .sub{font-size:11px;color:var(--dim);letter-spacing:.05em}
+.panel-b{padding:16px 18px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fade{animation:fadeUp .35s ease both}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.pulse{animation:pulse 1.6s infinite}
+
+/* LOGIN */
+#loginView{position:fixed;inset:0;z-index:50;display:grid;grid-template-columns:1.15fr 1fr;background:var(--bg)}
+.lg-left{position:relative;overflow:hidden;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;padding:70px 70px}
+.radar{position:absolute;width:640px;height:640px;right:-200px;top:50%;transform:translateY(-50%);border-radius:50%;opacity:.5;
+  border:1px solid rgba(240,180,41,.15);box-shadow:inset 0 0 0 90px rgba(240,180,41,.02),inset 0 0 0 180px rgba(240,180,41,.02),inset 0 0 0 270px rgba(240,180,41,.02)}
+.radar::before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(240,180,41,.28),transparent 70deg);animation:spin 5s linear infinite}
+.radar::after{content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px var(--gold)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lg-emb{display:flex;align-items:center;gap:14px;margin-bottom:34px;position:relative}
+.lg-tag{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.25em;margin-bottom:14px}
+.lg-left h1{font-size:74px;line-height:.95;font-weight:700;position:relative}
+.lg-left h1 span{color:var(--gold)}
+.lg-left p{color:var(--mut);max-width:460px;margin-top:20px;line-height:1.7;position:relative}
+.lg-flow{display:flex;gap:8px;margin-top:34px;flex-wrap:wrap;position:relative}
+.lg-flow b{font-family:var(--disp);letter-spacing:.08em;font-size:13px;padding:6px 12px;border:1px solid var(--line2);border-radius:6px;color:var(--mut);font-weight:600}
+.lg-flow b.hl{color:#1a1204;background:var(--gold);border-color:var(--gold)}
+.lg-flow i{color:var(--dim);align-self:center;font-style:normal}
+.lg-right{display:flex;align-items:center;justify-content:center;padding:30px;overflow-y:auto}
+.lg-card{width:420px;max-width:100%}
+.lg-card h2{font-size:26px;margin-bottom:4px}
+.lg-card .mut{color:var(--mut);font-size:12.5px;margin-bottom:20px}
+.fld{margin-bottom:14px}
+.fld input{width:100%}
+.conn{border:1px dashed rgba(240,180,41,.4);background:rgba(240,180,41,.05);border-radius:10px;padding:13px 14px;margin-bottom:16px}
+.conn p{font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px;font-weight:700}
+.demo{margin-top:18px;border-top:1px dashed var(--line2);padding-top:14px}
+.demo p{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+.demo .row{display:flex;gap:6px;flex-wrap:wrap}
+.demo button{font-family:var(--mono);font-size:11px;background:#0c1520;border:1px solid var(--line2);color:var(--mut);padding:5px 9px;border-radius:6px}
+.demo button:hover{color:var(--gold);border-color:var(--gold)}
+.shake{animation:shk .4s}
+@keyframes shk{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+/* SHELL */
+#app{display:grid;grid-template-columns:238px 1fr;min-height:100vh;position:relative;z-index:1}
+#sidebar{background:linear-gradient(180deg,#0d1622,#0a111a);border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.logo{display:flex;gap:11px;align-items:center;padding:4px 8px 18px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.logo .t1{font-family:var(--disp);font-size:21px;font-weight:700;letter-spacing:.07em;line-height:1}
+.logo .t2{font-size:9.5px;color:var(--gold);letter-spacing:.22em;font-family:var(--mono);margin-top:3px}
+.nav-sec{font-size:9.5px;color:var(--dim);letter-spacing:.2em;padding:12px 10px 6px;font-weight:700}
+.nav-it{display:flex;align-items:center;gap:11px;padding:9.5px 11px;border-radius:9px;color:var(--mut);cursor:pointer;font-size:13px;font-weight:600;border:1px solid transparent;transition:.15s;margin-bottom:2px}
+.nav-it:hover{color:var(--ink);background:#111c29}
+.nav-it.on{color:var(--gold);background:rgba(240,180,41,.09);border-color:rgba(240,180,41,.25)}
+.nav-it svg{width:17px;height:17px;flex:none}
+.nav-it .wch{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:9px;padding:1px 7px;font-family:var(--mono)}
+.sb-foot{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+.sb-motto{font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:.14em;text-align:center;padding:8px 0}
+#main{min-width:0}
+#topbar{display:flex;align-items:center;gap:14px;padding:13px 26px;border-bottom:1px solid var(--line);background:rgba(13,20,29,.85);backdrop-filter:blur(6px);position:sticky;top:0;z-index:30}
+#tbTitle{font-family:var(--disp);font-size:21px;letter-spacing:.07em}
+#tbTitle small{color:var(--gold);font-size:13px;letter-spacing:.15em}
+#syncBadge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:5px;letter-spacing:.1em}
+.sync-off{background:rgba(255,152,56,.12);color:var(--org);border:1px solid rgba(255,152,56,.35)}
+.sync-on{background:rgba(61,220,132,.12);color:var(--grn);border:1px solid rgba(61,220,132,.35)}
+#clock{margin-left:auto;text-align:right;font-family:var(--mono);font-size:12px;line-height:1.35}
+#clock b{font-size:16px;color:var(--gold);letter-spacing:.05em}
+#clock span{color:var(--dim);font-size:10px}
+.uchip{display:flex;align-items:center;gap:10px;border:1px solid var(--line2);border-radius:10px;padding:6px 12px;cursor:pointer;position:relative}
+.uchip:hover{border-color:var(--gold)}
+.uava{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--gold),#c07f0e);display:grid;place-items:center;font-weight:800;color:#1a1204;font-size:14px}
+.uchip .un{font-size:12.5px;font-weight:700}.uchip .ur{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.1em}
+.umenu{position:absolute;top:calc(100% + 8px);right:0;background:var(--panel2);border:1px solid var(--line2);border-radius:10px;min-width:190px;padding:6px;box-shadow:0 14px 40px rgba(0,0,0,.5);z-index:60}
+.umenu div{padding:8px 11px;border-radius:7px;font-size:13px;cursor:pointer}
+.umenu div:hover{background:#1a2836}
+#views{padding:24px 26px 40px}
+.view{display:none}.view.on{display:block}
+
+/* DASH */
+.kpis{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr 1.3fr;gap:12px;margin-bottom:16px}
+.kpi{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:15px 17px;position:relative;overflow:hidden;transition:.2s}
+.kpi:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 10px 26px rgba(0,0,0,.35)}
+.kpi .k-l{font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-weight:700}
+.kpi .k-v{font-family:var(--disp);font-size:40px;font-weight:700;line-height:1.1;margin-top:3px}
+.kpi .k-s{font-size:11px;color:var(--mut);margin-top:2px}
+.kpi.hero{border-color:rgba(240,180,41,.4)}
+.kpi.hero::after{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(240,180,41,.16),transparent 70%)}
+.kpi.hero .k-v{color:var(--gold);font-size:48px}
+.kT .k-v{color:var(--red)}.kS .k-v{color:var(--org)}.kR .k-v{color:var(--grn)}
+.dgrid{display:grid;grid-template-columns:1.9fr 1fr;gap:12px;margin-bottom:12px}
+.dgrid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.chartbox{height:250px;position:relative}
+.wrow{display:flex;gap:11px;padding:10px 4px;border-bottom:1px dashed var(--line);align-items:flex-start}
+.wrow:last-child{border:none}
+.wrow .wi{font-size:18px;margin-top:1px}
+.wrow .wm{font-size:12.5px;line-height:1.5}
+.wrow .wm small{color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.08em}
+.wrow.sevT{border-left:3px solid var(--red);padding-left:10px;background:rgba(255,82,82,.04)}
+.wrow.sevS{border-left:3px solid var(--org);padding-left:10px;background:rgba(255,152,56,.04)}
+.trow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.trow:last-child{border:none}
+.trow .tn{width:150px;font-weight:600}
+.trow .tb{flex:1;height:8px;background:#0c1520;border-radius:5px;overflow:hidden}
+.trow .tb i{display:block;height:100%;border-radius:5px}
+.trow .tc{font-family:var(--mono);font-size:12px;color:var(--mut);width:34px;text-align:right}
+.alur{display:flex;align-items:center;gap:0;background:linear-gradient(90deg,rgba(240,180,41,.05),rgba(76,201,240,.05));border:1px solid var(--line);border-radius:13px;padding:14px 22px;margin-bottom:12px;flex-wrap:wrap}
+.alur .st{display:flex;align-items:center;gap:9px}
+.alur .no{width:26px;height:26px;border-radius:50%;background:#0c1520;border:1px solid var(--gold);color:var(--gold);display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700}
+.alur .lb{font-family:var(--disp);font-size:15px;letter-spacing:.1em;font-weight:600}
+.alur .ar{margin:0 14px;color:var(--dim)}
+.alur .st:last-child .lb{color:var(--gold)}
+.parad{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin-bottom:12px}
+.parad .p{border:1px solid var(--line);border-radius:12px;padding:13px 16px;font-size:12.5px;background:var(--panel)}
+.parad .p h4{font-family:var(--disp);letter-spacing:.12em;font-size:14px;margin-bottom:6px}
+.parad .old h4{color:var(--dim)}.parad .new h4{color:var(--grn)}
+.parad .p span{color:var(--mut);line-height:1.7}
+.parad .mid{display:grid;place-items:center;font-family:var(--disp);color:var(--gold);font-size:16px;letter-spacing:.1em;text-align:center}
+.step{display:flex;gap:11px;margin-bottom:11px;font-size:13px;line-height:1.6}
+.step .n{width:22px;height:22px;flex:none;border-radius:50%;background:rgba(240,180,41,.15);color:var(--gold);display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700}
+
+/* MAP */
+#v-map .wrap{display:grid;grid-template-columns:280px 1fr;gap:12px;height:calc(100vh - 130px)}
+.mpanel{overflow-y:auto;padding:14px}
+.lcard{border:1px solid var(--line2);border-radius:10px;padding:11px 12px;margin-bottom:10px;background:#0d1622}
+.lcard.on{border-color:rgba(240,180,41,.45);background:rgba(240,180,41,.05)}
+.lcard .lt{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12.5px;cursor:pointer}
+.lcard .lt input{accent-color:var(--gold);width:15px;height:15px}
+.lcard .ld{font-size:10.5px;color:var(--dim);margin:5px 0 0 23px}
+.lcard .body{margin:9px 0 2px 23px}
+.seg{display:flex;flex-wrap:wrap;gap:5px}
+.seg button{font-size:10.5px;padding:4px 9px;border-radius:14px;border:1px solid var(--line2);background:#0c1520;color:var(--mut);font-weight:700}
+.seg button.on{background:var(--gold);color:#1a1204;border-color:var(--gold)}
+.tchip{font-size:10.5px;padding:4px 9px;border-radius:14px;border:1px solid var(--line2);background:#0c1520;color:var(--mut);font-weight:700;margin:2px 3px 2px 0}
+.tchip.on{color:#0c1520;font-weight:800}
+#mapEl{height:100%;border-radius:13px;border:1px solid var(--line);background:#0b1219}
+.leaflet-container{font-family:var(--body)}
+.zlab{background:#0d1622;border:1px solid var(--line2);color:var(--ink);font-family:var(--disp);font-size:12px;letter-spacing:.06em;padding:2px 8px;border-radius:5px;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.zlab::before{display:none}
+.mlegend{position:absolute;left:12px;bottom:12px;z-index:500;background:rgba(13,22,34,.94);border:1px solid var(--line2);border-radius:10px;padding:11px 14px;font-size:11px}
+.mlegend b{font-family:var(--disp);letter-spacing:.1em;font-size:12px;display:block;margin-bottom:6px}
+.mlegend .r{display:flex;align-items:center;gap:7px;margin:3px 0;color:var(--mut)}
+.mappos{position:relative}
+.mstat{position:absolute;z-index:500;top:12px;right:12px;background:rgba(13,22,34,.94);border:1px solid var(--line2);border-radius:10px;padding:9px 14px;font-family:var(--mono);font-size:11px;color:var(--mut)}
+.pp{font-size:12.5px;min-width:230px}
+.pp h4{font-family:var(--disp);font-size:16px;letter-spacing:.05em;margin-bottom:6px}
+.pp .gr{display:grid;grid-template-columns:78px 1fr;gap:3px 8px;margin:6px 0;color:#333}
+.pp .gr b{color:#777;font-weight:600;font-size:11px}
+.leaflet-popup-content-wrapper{background:#f4f6f9;color:#222;border-radius:10px}
+.leaflet-popup-tip{background:#f4f6f9}
+.pp img{width:100%;border-radius:7px;margin-top:6px;max-height:130px;object-fit:cover}
+.pp select{background:#fff;color:#222;border-color:#ccc;width:100%;margin-top:4px}
+
+/* TABLE */
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:13px}
+.toolbar input[type=text]{width:230px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-family:var(--disp);letter-spacing:.1em;font-size:12.5px;color:var(--dim);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line2);text-transform:uppercase;font-weight:600;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:hover td{background:rgba(240,180,41,.03)}
+.thumb{width:38px;height:38px;border-radius:7px;object-fit:cover;border:1px solid var(--line2);cursor:pointer;background:#0c1520;display:grid;place-items:center;font-size:15px}
+.stsel{padding:4px 7px;font-size:11.5px;border-radius:6px;font-weight:700}
+.st-LaporanMasuk{color:#8ba0b5;border-color:#3a4c5f}
+.st-Terverifikasi{color:var(--cyan);border-color:#2b5d73}
+.st-DalamProses{color:var(--gold);border-color:#6d5417}
+.st-Selesai{color:var(--grn);border-color:#1f5c3d}
+.st-Pemantauan{color:var(--vio);border-color:#4d3f6d}
+.ibtn{background:none;border:none;color:var(--mut);font-size:14px;padding:4px 6px;border-radius:6px}
+.ibtn:hover{background:#1a2836;color:var(--gold)}
+.pgr{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:12px;font-size:12px;color:var(--mut)}
+.note{font-size:11.5px;color:var(--dim);border-left:3px solid var(--gold);padding:7px 12px;background:rgba(240,180,41,.05);border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.6}
+
+/* RISK */
+.riskgrid{display:grid;grid-template-columns:330px 1fr;gap:12px;align-items:start}
+.wrow2{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.wrow2 .wl{width:170px;font-size:12px;font-weight:700}
+.wrow2 input[type=range]{flex:1;accent-color:var(--gold)}
+.wrow2 .wv{font-family:var(--mono);width:44px;text-align:right;color:var(--gold);font-weight:700}
+.sbar{width:70px;height:7px;background:#0c1520;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:7px}
+.sbar i{display:block;height:100%}
+.scorebig{font-family:var(--mono);font-weight:700;font-size:16px}
+
+/* REC */
+.recgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:13px}
+.rec{border:1px solid var(--line);border-radius:13px;background:linear-gradient(180deg,var(--panel2),var(--panel));overflow:hidden;transition:.2s}
+.rec:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.rec.prT{border-top:3px solid var(--red)}.rec.prS{border-top:3px solid var(--org)}.rec.prR{border-top:3px solid var(--grn)}
+.rec-in{padding:15px 17px}
+.rec-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rec h3{font-size:23px}
+.rec h3 small{color:var(--dim);font-size:12px;letter-spacing:.08em;margin-left:6px}
+.rec .stat{font-size:12px;color:var(--mut);margin:7px 0 11px;line-height:1.6}
+.rec .plan{background:#0c1520;border:1px dashed var(--line2);border-radius:9px;padding:10px 13px;font-size:12.5px;line-height:2}
+.rec .plan b{color:var(--gold)}
+.chain{display:flex;flex-wrap:wrap;gap:6px;margin:11px 0}
+.chain label{display:flex;align-items:center;gap:5px;margin:0;font-size:10.5px;text-transform:none;letter-spacing:0;color:var(--mut);border:1px solid var(--line2);padding:4px 9px;border-radius:14px;cursor:pointer;font-weight:700}
+.chain input{accent-color:var(--gold)}
+.chain label.done{color:#0c1520;background:var(--grn);border-color:var(--grn)}
+.rec-foot{display:flex;gap:8px}
+.prio{font-family:var(--disp);letter-spacing:.1em;font-size:13px;font-weight:700;padding:3px 10px;border-radius:5px}
+.pr-T{background:rgba(255,82,82,.15);color:var(--red)}.pr-S{background:rgba(255,152,56,.14);color:var(--org)}.pr-R{background:rgba(61,220,132,.13);color:var(--grn)}
+
+/* WARN */
+.alert{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:14px 17px;margin-bottom:10px;background:var(--panel)}
+.alert.T{border-left:4px solid var(--red)}.alert.S{border-left:4px solid var(--org)}
+.alert .ai{font-size:22px}
+.alert .am{font-size:13.5px;line-height:1.55}
+.alert .at{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.12em;margin-bottom:3px}
+.alert .ax{margin-left:auto;flex:none;display:flex;gap:7px}
+
+/* MODAL/TOAST */
+#modal{position:fixed;inset:0;z-index:100;background:rgba(5,9,14,.75);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px}
+.mbox{background:var(--panel2);border:1px solid var(--line2);border-radius:14px;width:560px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:fadeUp .25s}
+.mbox.wide{width:780px}
+.mh{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.mh h3{font-size:19px}
+.mh .x{margin-left:auto;background:none;border:none;color:var(--mut);font-size:20px}
+.mh .x:hover{color:var(--red)}
+.mb{padding:18px 20px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+#toasts{position:fixed;bottom:22px;right:22px;z-index:200;display:flex;flex-direction:column;gap:9px}
+.toast{background:var(--panel2);border:1px solid var(--line2);border-left:4px solid var(--gold);border-radius:10px;padding:11px 16px;font-size:13px;box-shadow:0 12px 34px rgba(0,0,0,.5);animation:fadeUp .3s;max-width:340px}
+.toast.err{border-left-color:var(--red)}.toast.ok{border-left-color:var(--grn)}
+pre.code{background:#0a1119;border:1px solid var(--line);border-radius:10px;padding:14px;font-family:var(--mono);font-size:11px;line-height:1.6;overflow:auto;max-height:320px;color:#a8c0d5;white-space:pre}
+#miniMap{background:#0b1219}
+@media(max-width:1150px){#app{grid-template-columns:64px 1fr}.logo .t1,.logo .t2,.nav-sec,.nav-it span,.sb-motto{display:none}.kpis{grid-template-columns:1fr 1fr 1fr}.dgrid,.riskgrid{grid-template-columns:1fr}#v-map .wrap{grid-template-columns:1fr;height:auto}.mpanel{max-height:300px}#loginView{grid-template-columns:1fr}.lg-left{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginView">
+  <div class="lg-left">
+    <div class="radar"></div>
+    <div class="lg-emb">
+      <svg width="52" height="58" viewBox="0 0 52 58"><path d="M26 2 49 10v18c0 14-10 24-23 28C13 52 3 42 3 28V10L26 2z" fill="#12202f" stroke="#f0b429" stroke-width="2"/><path d="M26 14c-4.4 0-8 3.4-8 7.6 0 5.6 8 14 8 14s8-8.4 8-14c0-4.2-3.6-7.6-8-7.6zm0 10.4a2.9 2.9 0 1 1 0-5.8 2.9 2.9 0 0 1 0 5.8z" fill="#f0b429"/></svg>
+      <div><div style="font-family:var(--disp);font-size:19px;letter-spacing:.1em">SATUAN POLISI PAMONG PRAJA</div><div style="font-size:10px;color:var(--mut);letter-spacing:.28em;font-family:var(--mono)">KABUPATEN BADUNG</div></div>
+    </div>
+    <div class="lg-tag">// FROM REACTIVE TO PREVENTIVE</div>
+    <h1>SIPERAWAN<br><span>TRANTIB</span></h1>
+    <p>Sistem pemetaan kerawanan ketenteraman dan ketertiban umum berbasis data riil, skoring risiko, dan rekomendasi patroli presisi.<p> 
+<p>Data → Informasi → Analisis → Keputusan → Tindakan.</p>
+    <div class="lg-flow"><b>DATA</b><i>›</i><b>POLA</b><i>›</i><b>TITIK RAWAN</b><i>›</i><b class="hl">PRIORITAS PATROLI</b><i>›</i><b>PENCEGAHAN</b></div>
+  </div>
+  <div class="lg-right">
+    <div class="lg-card">
+      <div class="conn">
+        <p>📊 Sumber Data — Google Spreadsheet</p>
+        <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+          <span class="chip"><span class="dot pulse" style="background:var(--grn)"></span> Backend otomatis</span>
+          <button class="btn sm gold" onclick="pullSheet(false).then(()=>toast('Data berhasil disinkronkan','ok')).catch(e=>toast(e.message,'err'))">🔄 Sinkronkan Data</button>
+          <span id="connStat" class="mono" style="font-size:10px;color:var(--dim)">menghubungkan…</span>
+        </div>
+      </div>
+      <h2>Masuk Sistem</h2>
+      <div class="mut">Gunakan akun resmi yang diberikan administrator.</div>
+      <div class="fld"><label>Username</label><input id="lgU" autocomplete="off"></div>
+      <div class="fld"><label>Password</label><input id="lgP" type="password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn gold" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()">MASUK KE COMMAND CENTER →</button>
+      <div class="demo"><p>Akun Demonstrasi</p>
+        <div class="row">
+          <button onclick="fill('admin','admin123')">admin</button>
+          <button onclick="fill('kasi','kasi123')">kasi</button>
+          <button onclick="fill('petugas','petugas123')">petugas</button>
+          <button onclick="fill('viewer','viewer123')">viewer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+  <aside id="sidebar">
+    <div class="logo">
+      <svg width="34" height="38" viewBox="0 0 52 58"><path d="M26 2 49 10v18c0 14-10 24-23 28C13 52 3 42 3 28V10L26 2z" fill="#12202f" stroke="#f0b429" stroke-width="2.5"/><path d="M26 14c-4.4 0-8 3.4-8 7.6 0 5.6 8 14 8 14s8-8.4 8-14c0-4.2-3.6-7.6-8-7.6zm0 10.4a2.9 2.9 0 1 1 0-5.8 2.9 2.9 0 0 1 0 5.8z" fill="#f0b429"/></svg>
+      <div><div class="t1">PETA RAWAN</div><div class="t2">TRANTIB · BADUNG</div></div>
+    </div>
+    <div class="nav-sec">UTAMA</div>
+    <div class="nav-it on" data-v="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Dashboard</span></div>
+    <div class="nav-it" data-v="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zm0 0v14m6-12v14"/></svg><span>Peta Rawan</span></div>
+    <div class="nav-it" data-v="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2.5"/></svg><span>Data Trantib</span></div>
+    <div class="nav-sec">ANALISIS</div>
+    <div class="nav-it" data-v="risk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10m5.3 10V4m5.4 16v-8m5.3 8V7"/></svg><span>Analisis Risiko</span></div>
+    <div class="nav-it" data-v="rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg><span>Rekomendasi Patroli</span></div>
+    <div class="nav-it" data-v="warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2.5 20h19L12 3zm0 7v4m0 3v.5"/></svg><span>Early Warning</span><span class="wch hidden" id="warnCount">0</span></div>
+    <div class="nav-sec" data-need="admin">ADMINISTRASI</div>
+    <div class="nav-it" data-v="user" data-need="admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5M16 4.5a3.5 3.5 0 0 1 0 7m2.3 3.3c2 .7 3 2.2 3.4 4.2"/></svg><span>Manajemen User</span></div>
+    <div class="nav-it" data-v="set" data-need="admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.8-1.6L13.3 2h-2.6l-.4 2.9a7 7 0 0 0-2.8 1.6l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .5.1 1.1.2 1.6l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.8 1.6l.4 2.9h2.6l.4-2.9a7 7 0 0 0 2.8-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1.1.2-1.6z"/></svg><span>Pengaturan &amp; Sinkronisasi</span></div>
+    <div class="sb-foot">
+      <div class="sb-motto">FROM REACTIVE<br>TO PREVENTIVE</div>
+    </div>
+  </aside>
+
+  <main id="main">
+    <header id="topbar">
+      <div id="tbTitle">DASHBOARD<small>· KABUPATEN BADUNG</small></div>
+      <span id="syncBadge" class="sync-off">● MODE LOKAL</span>
+      <button class="ibtn" id="refreshBtn" title="Tarik ulang data dari Spreadsheet" onclick="refreshData()" style="display:none;font-size:17px">🔄</button>
+      <div id="clock"><b>--:--:--</b> WITA<br><span>—</span></div>
+      <div class="uchip" onclick="toggleUmenu(event)">
+        <div class="uava" id="uAva">A</div>
+        <div><div class="un" id="uName">—</div><div class="ur" id="uRole">—</div></div>
+        <div class="umenu hidden" id="umenu">
+          <div onclick="openPassModal()">🔑 Ubah Password</div>
+          <div onclick="doLogout()">🚪 Keluar</div>
+        </div>
+      </div>
+    </header>
+
+    <div id="views">
+      <section class="view on" id="v-dash"><div id="dashBox"></div></section>
+
+      <section class="view" id="v-map">
+        <div class="wrap">
+          <div class="panel mpanel">
+            <h3 style="font-size:16px;margin-bottom:11px">🗂️ Kontrol Layer</h3>
+            <div class="lcard on" id="lc1"><div class="lt"><input type="checkbox" checked id="ly1" onchange="ML.pts=this.checked;tglCard();rebuildMap()"> 📍 Layer 1 · Titik Kejadian</div><div class="ld">Marker lokasi kejadian aktual</div></div>
+            <div class="lcard on" id="lc2"><div class="lt"><input type="checkbox" checked id="ly2" onchange="ML.risk=this.checked;tglCard();rebuildMap()"> 🎯 Layer 2 · Tingkat Kerawanan</div><div class="ld">🟢 Rendah · 🟠 Sedang · 🔴 Tinggi</div></div>
+            <div class="lcard on" id="lc3"><div class="lt"><input type="checkbox" checked id="ly3" onchange="tglCard()"> ⏰ Layer 3 · Waktu Kejadian</div>
+              <div class="body seg" id="bandSeg"></div></div>
+            <div class="lcard on" id="lc4"><div class="lt"><input type="checkbox" checked id="ly4" onchange="tglCard()"> 🏷️ Layer 4 · Jenis Gangguan</div>
+              <div class="body" id="typeChips"></div></div>
+            <div class="note" style="margin-top:14px">Klik marker untuk detail &amp; ubah status penanganan. Klik zona untuk ringkasan skoring.</div>
+            <button class="btn sm" onclick="fitBadung()">⤢ Seluruh Wilayah Badung</button>
+          </div>
+          <div class="mappos">
+            <div id="mapEl"></div>
+            <div class="mstat" id="mapStat"></div>
+            <div class="mlegend">
+              <b>LEGENDA</b>
+              <div class="r"><span class="dot" style="background:var(--red)"></span> Zona Rawan Tinggi (61–100)</div>
+              <div class="r"><span class="dot" style="background:var(--org)"></span> Zona Rawan Sedang (31–60)</div>
+              <div class="r"><span class="dot" style="background:var(--grn)"></span> Zona Rawan Rendah (0–30)</div>
+              <div class="r" style="margin-top:6px" id="legTypes"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="v-data"><div id="dataBox"></div></section>
+
+      <section class="view" id="v-risk">
+        <div class="riskgrid">
+          <div class="panel"><div class="panel-h"><h3>⚖️ Bobot &amp; Ambang</h3></div><div class="panel-b" id="weightBox"></div></div>
+          <div class="panel"><div class="panel-h"><h3>📊 Skoring Kerawanan per Wilayah</h3><span class="sub" id="riskWin" style="margin-left:auto"></span></div><div class="panel-b" id="riskTable" style="overflow-x:auto"></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="v-rec"><div id="recBox"></div></section>
+      <section class="view" id="v-warn"><div id="warnBox"></div></section>
+      <section class="view" id="v-user"><div id="userBox"></div></section>
+
+      <section class="view" id="v-set">
+        <div class="dgrid2">
+          <div class="panel"><div class="panel-h"><h3>🔗 Koneksi Google Spreadsheet</h3></div><div class="panel-b">
+            <label>URL Web App (Apps Script /exec)</label>
+            <input id="setUrl" style="width:100%" value="BACKEND OTOMATIS" disabled>
+            <label style="display:flex;align-items:center;gap:8px;margin-top:12px;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="setAuto" style="width:auto"> Sinkron otomatis setiap perubahan data</label>
+            <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+              <button class="btn gold sm" onclick="saveSettings()">💾 Simpan</button>
+              <button class="btn sm" onclick="testSheet()">📶 Tes Koneksi</button>
+              <button class="btn sm" onclick="pullSheet(false).then(()=>showView(CUR))">⬇️ Tarik dari Sheet</button>
+              <button class="btn sm" onclick="pushSheet()">⬆️ Kirim ke Sheet</button>
+            </div>
+            <div class="note" style="margin-top:14px">Foto yang diunggah otomatis tersimpan ke folder <b>FOTO_TRANTIB</b> di Google Drive; spreadsheet hanya menyimpan URL-nya.</div>
+          </div></div>
+          <div class="panel"><div class="panel-h"><h3>🚀 Panduan Deployment</h3></div><div class="panel-b">
+            <div class="step"><span class="n">1</span><span>Buat <b>Google Spreadsheet</b> baru → <b>Extensions › Apps Script</b> → tempel isi file <b>code.gs</b> → jalankan fungsi <b>setup()</b> sekali → <b>Deploy › New deployment › Web app</b> (Execute as: <i>Me</i>, Access: <i>Anyone</i>) → tidak perlu memasukkan URL karena aplikasi berjalan langsung dari Web App ini.</span></div>
+            <div class="step"><span class="n">2</span><span>Isi data kejadian langsung di Spreadsheet (struktur kolom ada di Dashboard saat data kosong), atau input lewat aplikasi — termasuk <b>📍 perekaman koordinat GPS</b> dan <b>📷 foto dari kamera HP</b>.</span></div>
+            <div class="step"><span class="n">3</span><span><b>GitHub:</b> buat repository baru, unggah <span class="mono">index.html</span> → <b>Settings › Pages › Deploy from branch (main)</b> → aplikasi online. <b>GPS &amp; kamera membutuhkan HTTPS</b> — GitHub Pages sudah HTTPS.</span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+              <button class="btn sm" onclick="exportJSON()">📤 Ekspor Data (JSON)</button>
+              <button class="btn sm" onclick="document.getElementById('impFile').click()">📥 Impor Data</button>
+              <input type="file" id="impFile" class="hidden" accept=".json" onchange="importJSON(this)">
+              <button class="btn sm" onclick="loadDemo()">🧪 Muat Data Contoh</button>
+              <button class="btn red sm" onclick="clearLocal()">🗑 Kosongkan Data Lokal</button>
+            </div>
+          </div></div>
+        </div>
+        <div class="panel" style="margin-top:12px"><div class="panel-h"><h3>📄 Kode Backend (Google Apps Script — code.gs)</h3><button class="btn sm" style="margin-left:auto" onclick="copyGAS()">📋 Salin Kode</button></div><div class="panel-b"><pre class="code" id="gasCode"></pre></div></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="modal" class="hidden"></div>
+<div id="toasts"></div>
+
+<script>
+/* ================= UTIL ================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const p2=n=>String(n).padStart(2,'0');
+const BLN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const DOW=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const DOWF=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const fmtD=iso=>{const d=new Date(iso+'T00:00');return isNaN(d)?iso:(d.getDate()+' '+BLN[d.getMonth()]+' '+d.getFullYear())};
+const fmtISO=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+const age=i=>(Date.now()-new Date(i.tanggal+'T00:00').getTime())/864e5;
+const bandOf=h=>h>=5&&h<10?'Pagi':h>=10&&h<15?'Siang':h>=15&&h<18?'Sore':'Malam';
+const BANDH={Pagi:'05.00–10.00',Siang:'10.00–15.00',Sore:'15.00–18.00',Malam:'18.00–23.00'};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return h.toString(36)+s.length};
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* ================= KONSTANTA ================= */
+const TYPES={'Tertib Jalan dan Keselamatan Pejalan Kaki':{c:'#4cc9f0',i:'🚶'},'Tertib Jalur Hijau, Taman dan Tempat Umum':{c:'#3ddc84',i:'🌳'},'Tertib Sungai, Saluran Air dan Kawasan Pesisir':{c:'#36c5f0',i:'🌊'},'Tertib Lingkungan':{c:'#ffd166',i:'♻️'},'Tertib Bangunan':{c:'#f0b429',i:'🏗️'},'Tertib Usaha Pariwisata':{c:'#ff8a3d',i:'🏨'},'Tertib Sosial':{c:'#ff5e7a',i:'👥'},'Tertib Kependudukan':{c:'#b388ff',i:'🪪'}};
+const TYPE_ALIAS={'PKL':'Tertib Jalan dan Keselamatan Pejalan Kaki','Reklame':'Tertib Jalur Hijau, Taman dan Tempat Umum','Bangunan':'Tertib Bangunan','Kerumunan':'Tertib Sosial','Fasilitas Umum':'Tertib Jalur Hijau, Taman dan Tempat Umum','Miras/Karaoke':'Tertib Usaha Pariwisata','Kebisingan':'Tertib Lingkungan','Lainnya':'Tertib Sosial'};
+function normalizeType(t){const x=String(t||'').trim();return TYPES[x]?x:(TYPE_ALIAS[x]||'Tertib Sosial')}
+const SOURCES=['Pengaduan Masyarakat','Laporan Petugas','Hasil Patroli','Hasil Penertiban','Kejadian Gangguan Trantibum','Kegiatan Pengawasan','Data Historis'];
+const STATUS=['Laporan Masuk','Terverifikasi','Dalam Proses','Selesai','Pemantauan'];
+const ST={'Laporan Masuk':'#8ba0b5','Terverifikasi':'#4cc9f0','Dalam Proses':'#f0b429','Selesai':'#3ddc84','Pemantauan':'#b388ff'};
+const BANDS={T:{n:'RAWAN TINGGI',c:'#ff5252',e:'🔴'},S:{n:'RAWAN SEDANG',c:'#ff9838',e:'🟠'},R:{n:'RAWAN RENDAH',c:'#3ddc84',e:'🟢'}};
+const ZONES=[
+ {n:'Kuta',k:'Kuta',lat:-8.7135,lng:115.1793},{n:'Legian',k:'Kuta',lat:-8.6889,lng:115.1673},
+ {n:'Seminyak',k:'Kuta',lat:-8.6726,lng:115.1580},{n:'Canggu',k:'Kuta Utara',lat:-8.6478,lng:115.1385},
+ {n:'Kerobokan Kelod',k:'Kuta Utara',lat:-8.6560,lng:115.1622},{n:'Dalung',k:'Kuta Utara',lat:-8.6610,lng:115.1468},
+ {n:'Jimbaran',k:'Kuta Selatan',lat:-8.7877,lng:115.1683},{n:'Benoa',k:'Kuta Selatan',lat:-8.8208,lng:115.2060},
+ {n:'Tanjung Benoa',k:'Kuta Selatan',lat:-8.7677,lng:115.2298},{n:'Ungasan',k:'Kuta Selatan',lat:-8.8125,lng:115.1746},
+ {n:'Pecatu',k:'Kuta Selatan',lat:-8.8240,lng:115.1200},{n:'Mengwi',k:'Mengwi',lat:-8.5876,lng:115.2056},
+ {n:'Sempidi',k:'Mengwi',lat:-8.6006,lng:115.1895},{n:'Lukluk',k:'Mengwi',lat:-8.5975,lng:115.1985},
+ {n:'Abiansemal',k:'Abiansemal',lat:-8.5530,lng:115.2050},{n:'Blahkiuh',k:'Abiansemal',lat:-8.5270,lng:115.2000},
+ {n:'Mambal',k:'Abiansemal',lat:-8.5520,lng:115.2140},{n:'Petang',k:'Petang',lat:-8.4460,lng:115.1790}];
+const PERMS={admin:['view','add','edit','del','status','weights','users','settings','rec'],kasi:['view','add','edit','status','weights','rec'],petugas:['view','add','edit','status'],viewer:['view']};
+const can=p=>!!(SESSION&&PERMS[SESSION.r]&&PERMS[SESSION.r].includes(p));
+
+/* ================= DATA CONTOH (OPSIONAL — hanya via tombol) ================= */
+function seedIncidents(){
+ const R=mulberry32(20261007),incs=[],now=new Date();
+ const profiles=[
+  ['Tertib Jalan dan Keselamatan Pejalan Kaki',['Kuta','Legian','Seminyak','Canggu','Dalung']],
+  ['Tertib Jalur Hijau, Taman dan Tempat Umum',['Kuta','Seminyak','Mengwi','Sempidi','Abiansemal']],
+  ['Tertib Sungai, Saluran Air dan Kawasan Pesisir',['Benoa','Tanjung Benoa','Jimbaran','Mengwi','Canggu']],
+  ['Tertib Lingkungan',['Kuta','Legian','Kerobokan Kelod','Mengwi','Sempidi']],
+  ['Tertib Bangunan',['Petang','Blahkiuh','Mambal','Abiansemal','Mengwi']],
+  ['Tertib Usaha Pariwisata',['Kuta','Legian','Seminyak','Canggu','Tanjung Benoa']],
+  ['Tertib Sosial',['Kuta','Legian','Seminyak','Dalung','Jimbaran']],
+  ['Tertib Kependudukan',['Kuta','Kerobokan Kelod','Dalung','Mengwi','Sempidi']]
+ ];
+ const zonesByName=Object.fromEntries(ZONES.map(z=>[z.n,z]));
+ const SRC=['Hasil Patroli','Pengaduan Masyarakat','Laporan Petugas','Hasil Penertiban','Kegiatan Pengawasan'];
+ const OFF=['I Wayan Dharma','I Ketut Suartika','Ni Luh Ayu Widi','I Made Artha','I Gede Putu Raka','Ni Kadek Sinta'];
+ const DESC={
+  'Tertib Jalan dan Keselamatan Pejalan Kaki':'Aktivitas/objek mengganggu trotoar, badan jalan atau keselamatan pejalan kaki.',
+  'Tertib Jalur Hijau, Taman dan Tempat Umum':'Pemanfaatan jalur hijau, taman atau tempat umum tidak sesuai ketentuan.',
+  'Tertib Sungai, Saluran Air dan Kawasan Pesisir':'Aktivitas atau kondisi yang mengganggu sungai, saluran air atau kawasan pesisir.',
+  'Tertib Lingkungan':'Gangguan kebersihan, pencemaran, sampah atau kebisingan lingkungan.',
+  'Tertib Bangunan':'Bangunan atau pemanfaatan bangunan yang tidak sesuai ketentuan.',
+  'Tertib Usaha Pariwisata':'Kegiatan usaha pariwisata yang memerlukan pengawasan/penertiban.',
+  'Tertib Sosial':'Aktivitas sosial/kerumunan yang mengganggu ketenteraman dan ketertiban umum.',
+  'Tertib Kependudukan':'Pelanggaran/ketidaktertiban administrasi atau aktivitas kependudukan.'};
+ let id=1001;
+ for(let d=0;d<90;d++){
+   const dt=new Date(now);dt.setHours(0,0,0,0);dt.setDate(dt.getDate()-d);
+   const n=1+(d%7===0?2:0)+(R()<.45?1:0);
+   for(let j=0;j<n;j++){
+     const pr=profiles[(d+j*3)%profiles.length],jenis=pr[0],zn=pr[1][Math.floor(R()*pr[1].length)],z=zonesByName[zn];
+     const hh=6+Math.floor(R()*17),mm=Math.floor(R()*60),impact=1+(R()<.28?2:R()<.58?1:0);
+     incs.push({id:'TRT-'+(id++),tanggal:fmtISO(dt),jam:p2(hh)+':'+p2(mm),zona:z.n,
+       lat:+(z.lat+(R()-.5)*.008).toFixed(5),lng:+(z.lng+(R()-.5)*.008).toFixed(5),jenis,
+       sumber:SRC[Math.floor(R()*SRC.length)],dampak:impact,berulang:R()<.34,deskripsi:DESC[jenis],
+       status:d<7?(R()<.5?'Dalam Proses':'Terverifikasi'):(R()<.72?'Selesai':'Pemantauan'),foto:'',petugas:OFF[Math.floor(R()*OFF.length)],updatedAt:Date.now()});
+   }
+ }
+ return incs;
+}
+function seedUsers(){return[
+ {u:'admin',n:'Administrator Sistem',r:'admin',p:hash('admin123'),active:true,created:'2026-01-05'},
+ {u:'kasi',n:'Kasi Trantibum',r:'kasi',p:hash('kasi123'),active:true,created:'2026-01-05'},
+ {u:'petugas',n:'Petugas Lapangan',r:'petugas',p:hash('petugas123'),active:true,created:'2026-01-10'},
+ {u:'viewer',n:'Pimpinan / Viewer',r:'viewer',p:hash('viewer123'),active:true,created:'2026-01-10'}]}
+
+/* ================= STORE (default KOSONG — data dari Spreadsheet) ================= */
+let INC=[],USERS=[],WEIGHTS={f:30,t:30,b:20,d:20},TH={low:30,high:60},SET={url:'BACKEND',auto:true},ACT={},WACK={},SESSION=null,CUR='dash';
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+function loadAll(){
+ INC=LS.get('pr_inc',[]).map(x=>({...x,jenis:normalizeType(x.jenis)}));
+ USERS=LS.get('pr_usr',null)||seedUsers();
+ WEIGHTS=LS.get('pr_w',WEIGHTS);TH=LS.get('pr_th',TH);SET=LS.get('pr_set',SET);ACT=LS.get('pr_act',{});WACK=LS.get('pr_wck',{});
+}
+function persist(){LS.set('pr_inc',INC);LS.set('pr_usr',USERS);LS.set('pr_w',WEIGHTS);LS.set('pr_th',TH);LS.set('pr_set',SET);LS.set('pr_act',ACT);LS.set('pr_wck',WACK);updateSyncBadge();if(SET.auto)schedulePush()}
+let pushT;function schedulePush(){clearTimeout(pushT);pushT=setTimeout(()=>pushSheet(true),1500)}
+
+/* ================= AUTH ================= */
+function fill(u,p){$('#lgU').value=u;$('#lgP').value=p}
+function doLogin(){
+ const u=$('#lgU').value.trim(),p=$('#lgP').value;
+ const usr=USERS.find(x=>x.u===u&&x.p===hash(p));
+ if(!usr||!usr.active){const c=$('.lg-card');c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');toast('Username atau password salah','err');return}
+ SESSION={u:usr.u,n:usr.n,r:usr.r};sessionStorage.setItem('pr_ses',JSON.stringify(SESSION));enterApp();
+}
+function doLogout(){sessionStorage.removeItem('pr_ses');SESSION=null;$('#app').classList.add('hidden');$('#loginView').style.display='grid';$('#lgP').value=''}
+function enterApp(){
+ $('#loginView').style.display='none';$('#app').classList.remove('hidden');
+ $('#uName').textContent=SESSION.n;$('#uRole').textContent=({admin:'Administrator',kasi:'Kasi Trantibum',petugas:'Petugas',viewer:'Viewer'})[SESSION.r];
+ $('#uAva').textContent=SESSION.n[0].toUpperCase();
+ $$('[data-need]').forEach(el=>{el.style.display=el.dataset.need.includes(SESSION.r)?'':'none'});
+ showView('dash');
+}
+function toggleUmenu(e){e.stopPropagation();$('#umenu').classList.toggle('hidden')}
+document.addEventListener('click',()=>{const m=$('#umenu');if(m&&!m.classList.contains('hidden'))m.classList.add('hidden')});
+function openPassModal(){
+ openModal(`<div class="mh"><h3>🔑 Ubah Password</h3><button class="x" onclick="closeModal()">✕</button></div><div class="mb">
+  <label>Password Saat Ini</label><input type="password" id="pw0">
+  <label>Password Baru</label><input type="password" id="pw1">
+  <label>Konfirmasi Password Baru</label><input type="password" id="pw2">
+  <button class="btn gold" style="margin-top:16px" onclick="savePass()">Simpan Password</button></div>`);
+}
+function savePass(){
+ const u=USERS.find(x=>x.u===SESSION.u);
+ if(u.p!==hash($('#pw0').value))return toast('Password lama salah','err');
+ const n=$('#pw1').value;if(n.length<5)return toast('Password minimal 5 karakter','err');
+ if(n!==$('#pw2').value)return toast('Konfirmasi tidak cocok','err');
+ u.p=hash(n);persist();closeModal();toast('Password berhasil diubah','ok');
+}
+
+/* ================= RISK ENGINE ================= */
+function computeScores(win=90){
+ const cut=win*864e5,byZ={};ZONES.forEach(z=>byZ[z.n]=[]);
+ INC.forEach(i=>{if(byZ[i.zona]&&(Date.now()-new Date(i.tanggal+'T00:00').getTime())<=cut)byZ[i.zona].push(i)});
+ const maxF=Math.max(1,...Object.values(byZ).map(a=>a.length));
+ return ZONES.map(z=>{
+   const a=byZ[z.n],f=a.length;
+   const sev=f?a.reduce((s,i)=>s+i.dampak,0)/f:0;
+   const rep=f?a.filter(i=>i.berulang).length/f:0;
+   const crowd={'Tertib Jalan dan Keselamatan Pejalan Kaki':.75,'Tertib Jalur Hijau, Taman dan Tempat Umum':.55,'Tertib Sungai, Saluran Air dan Kawasan Pesisir':.8,'Tertib Lingkungan':.72,'Tertib Bangunan':.62,'Tertib Usaha Pariwisata':.9,'Tertib Sosial':1,'Tertib Kependudukan':.45};
+   const dmp=f?a.reduce((s,i)=>s+((i.dampak-1)/2)*0.7+(crowd[i.jenis]??.4)*0.3,0)/f:0;
+   const subs={f:f/maxF,t:f?(sev-1)/2:0,b:rep,d:Math.min(1,dmp*1.15)};
+   const score=Math.round(subs.f*WEIGHTS.f+subs.t*WEIGHTS.t+subs.b*WEIGHTS.b+subs.d*WEIGHTS.d);
+   return{z,f,sev,rep,subs,score,band:score>TH.high?'T':score>TH.low?'S':'R',items:a};
+ });
+}
+function genRecs(win=90){
+ return computeScores(win).filter(s=>s.f>=1).map(s=>{
+   const a=s.items,byDow=[0,0,0,0,0,0,0],byBand={Pagi:0,Siang:0,Sore:0,Malam:0};
+   a.forEach(i=>{const d=new Date(i.tanggal+'T00:00').getDay();byDow[d]++;byBand[bandOf(+i.jam.slice(0,2))]++});
+   let best=null;
+   [{k:'Jumat–Minggu',d:[5,6,0]},{k:'Jumat–Sabtu',d:[5,6]},{k:'Sabtu–Minggu',d:[6,0]},{k:'Senin–Kamis',d:[1,2,3,4]}].forEach(w=>{
+     const c=w.d.reduce((x,d)=>x+byDow[d],0),sh=c/a.length;if(!best||sh>best.sh)best={k:w.k,d:w.d,sh}});
+   const sd=byDow.indexOf(Math.max(...byDow));
+   if(byDow[sd]/a.length>best.sh)best={k:DOWF[sd],d:[sd],sh:byDow[sd]/a.length};
+   if(best.sh<0.35)best={k:'Setiap Hari',d:[0,1,2,3,4,5,6],sh:1};
+   const wh=[];a.forEach(i=>{if(best.d.includes(new Date(i.tanggal+'T00:00').getDay())){const hh=parseInt(String(i.jam||'12').slice(0,2),10);if(Number.isFinite(hh))wh.push(Math.max(0,Math.min(23,hh)))}});
+   wh.sort((x,y)=>x-y);
+   let h1=wh[Math.floor(wh.length*0.1)]??18,h2=Math.min(23,(wh[Math.ceil(wh.length*0.9)-1]??21)+1);
+   if(h2<=h1)h2=Math.min(23,h1+2);
+   const tc={};a.forEach(i=>tc[i.jenis]=(tc[i.jenis]||0)+1);
+   const topT=Object.entries(tc).sort((x,y)=>y[1]-x[1])[0];
+   return{zona:s.z,score:s.score,f:s.f,sh:Math.round(best.sh*100),hari:best.k,h1,h2,type:topT[0],typeN:topT[1],
+     band:Object.entries(byBand).sort((x,y)=>y[1]-x[1])[0][0],prio:s.score>TH.high?'T':s.score>TH.low?'S':'R'};
+ }).sort((x,y)=>y.score-x.score);
+}
+function genWarnings(){
+ const out=[];
+ ZONES.forEach(z=>{
+   const cur=INC.filter(i=>i.zona===z.n&&age(i)<=30).length;
+   const prev=INC.filter(i=>i.zona===z.n&&age(i)>30&&age(i)<=60).length;
+   if(prev>=3&&cur>prev){const pct=Math.round((cur-prev)/prev*100);
+     if(pct>=30)out.push({sev:pct>=60?'T':'S',icon:'⚠️',tag:'TREND NAIK',msg:`Peningkatan gangguan <b>${pct}%</b> di <b>${z.n}</b> (${prev} → ${cur} kejadian dalam 30 hari terakhir)`})}
+ });
+ computeScores().forEach(s=>{if(s.band==='T')out.push({sev:'T',icon:'🔴',tag:'ZONA MERAH',msg:`Wilayah <b>${s.z.n}</b> masuk kategori <b>RAWAN TINGGI</b> (skor ${s.score}) — perlu atensi patroli`})});
+ Object.keys(TYPES).forEach(t=>{
+   const w=[0,1,2].map(k=>INC.filter(i=>i.jenis===t&&age(i)>k*7&&age(i)<=(k+1)*7).length);
+   if(w[0]>w[1]&&w[1]>w[2]&&w[0]>=3)out.push({sev:'S',icon:'📈',tag:'POLA MINGGUAN',msg:`Gangguan <b>"${t}"</b> meningkat 3 minggu berturut-turut (${w[2]} → ${w[1]} → ${w[0]} kejadian)`});
+ });
+ out.sort((a,b)=>(a.sev==='T'?0:1)-(b.sev==='T'?0:1));
+ return out.filter(w=>!WACK[hash(w.msg)]);
+}
+
+/* ================= ROUTER ================= */
+const TITLES={dash:'DASHBOARD',map:'PETA KERAWANAN',data:'DATA TRANTIB',risk:'ANALISIS RISIKO',rec:'REKOMENDASI PATROLI',warn:'EARLY WARNING TRANTIB',user:'MANAJEMEN USER',set:'PENGATURAN & SINKRONISASI'};
+function showView(v){
+ CUR=v;
+ $$('.nav-it').forEach(n=>n.classList.toggle('on',n.dataset.v===v));
+ $$('.view').forEach(s=>s.classList.remove('on'));
+ $('#v-'+v).classList.add('on');
+ $('#tbTitle').innerHTML=`${TITLES[v]} <small>· KABUPATEN BADUNG</small>`;
+ ({dash:renderDash,data:renderData,risk:renderRisk,rec:renderRec,warn:renderWarn,user:renderUsers,set:renderSet})[v]?.();
+ if(v==='map')requestAnimationFrame(()=>{initMap();MAP.invalidateSize();rebuildMap()});
+}
+$$('.nav-it').forEach(n=>n.onclick=()=>showView(n.dataset.v));
+
+/* ================= DASH ================= */
+let CH={};
+function renderDash(){
+ if(!INC.length)return renderEmptyDash();
+ const sc=computeScores(),nT=sc.filter(s=>s.band==='T').length,nS=sc.filter(s=>s.band==='S').length,nR=sc.filter(s=>s.band==='R').length;
+ const ym=new Date().toISOString().slice(0,7);
+ const thisM=INC.filter(i=>i.tanggal.slice(0,7)===ym).length;
+ const tc={};INC.forEach(i=>tc[i.jenis]=(tc[i.jenis]||0)+1);
+ const top=Object.entries(tc).sort((a,b)=>b[1]-a[1]); if(!top.length)return renderEmptyDash();
+ const warns=genWarnings().slice(0,4);
+ const latest=[...INC].sort((a,b)=>(b.tanggal+b.jam).localeCompare(a.tanggal+a.jam)).slice(0,6);
+ $('#dashBox').innerHTML=`
+ <div class="kpis fade">
+   <div class="kpi hero"><div class="k-l">Total Kejadian</div><div class="k-v">${INC.length}</div><div class="k-s">dari Spreadsheet · ${SET.url?'tersinkron':'mode lokal'}</div></div>
+   <div class="kpi kT"><div class="k-l">🔴 Zona Risiko Tinggi</div><div class="k-v">${nT}</div><div class="k-s">skor &gt; ${TH.high}</div></div>
+   <div class="kpi kS"><div class="k-l">🟠 Zona Risiko Sedang</div><div class="k-v">${nS}</div><div class="k-s">skor ${TH.low+1}–${TH.high}</div></div>
+   <div class="kpi kR"><div class="k-l">🟢 Zona Risiko Rendah</div><div class="k-v">${nR}</div><div class="k-s">skor ≤ ${TH.low}</div></div>
+   <div class="kpi"><div class="k-l">Kejadian Bulan Ini</div><div class="k-v" style="color:var(--cyan)">${thisM}</div><div class="k-s">${BLN[new Date().getMonth()]} ${new Date().getFullYear()}</div></div>
+   <div class="kpi"><div class="k-l">Gangguan Terbanyak</div><div class="k-v" style="font-size:26px;padding-top:8px">${(TYPES[top[0][0]]||{i:'📋'}).i} ${top[0][0]}</div><div class="k-s">${top[0][1]} kejadian</div></div>
+ </div>
+ <div class="alur fade"><div class="st"><span class="no">1</span><span class="lb">Data</span></div><span class="ar">›</span><div class="st"><span class="no">2</span><span class="lb">Informasi</span></div><span class="ar">›</span><div class="st"><span class="no">3</span><span class="lb">Analisis</span></div><span class="ar">›</span><div class="st"><span class="no">4</span><span class="lb">Keputusan</span></div><span class="ar">›</span><div class="st"><span class="no">5</span><span class="lb">Tindakan</span></div>
+   <span style="margin-left:auto" class="chip"><span class="dot pulse" style="background:var(--grn)"></span> Siklus aktif — patroli preventif</span></div>
+ <div class="dgrid fade">
+   <div class="panel"><div class="panel-h"><h3>📈 Trend Gangguan Trantibum</h3><span class="sub" style="margin-left:auto">7 BULAN TERAKHIR</span></div><div class="panel-b"><div class="chartbox"><canvas id="chTrend"></canvas></div></div></div>
+   <div class="panel"><div class="panel-h"><h3>⚠️ Early Warning</h3><span class="sub" style="margin-left:auto"><a href="#" onclick="showView('warn');return false" style="text-decoration:none">LIHAT SEMUA ›</a></span></div><div class="panel-b" id="dashWarn"></div></div>
+ </div>
+ <div class="dgrid2 fade">
+   <div class="panel"><div class="panel-h"><h3>🏷️ Jenis Gangguan Terbanyak</h3></div><div class="panel-b"><div class="chartbox"><canvas id="chType"></canvas></div></div></div>
+   <div class="panel"><div class="panel-h"><h3>🗺️ Wilayah Paling Rawan</h3><span class="sub" style="margin-left:auto">90 HARI</span></div><div class="panel-b" id="topZones"></div></div>
+ </div>
+ <div class="parad fade">
+   <div class="p old"><h4>⛔ SEBELUM — REAKTIF</h4><span>Ada kejadian → ada pengaduan → Satpol PP bergerak. Penanganan selalu menunggu laporan masuk.</span></div>
+   <div class="mid">FROM<br>REACTIVE<br>→<br>TO<br>PREVENTIVE</div>
+   <div class="p new"><h4>✅ SETELAH PETA RAWAN — PREVENTIF</h4><span>Data kejadian → analisis pola → identifikasi titik rawan → prioritas patroli → pencegahan → evaluasi terukur.</span></div>
+ </div>
+ <div class="panel fade"><div class="panel-h"><h3>🕘 Kejadian Terbaru</h3></div><div class="panel-b" style="padding-top:4px" id="latestBox"></div></div>`;
+ $('#dashWarn').innerHTML=warns.length?warns.map(w=>`<div class="wrow sev${w.sev}"><span class="wi pulse">${w.icon}</span><div class="wm"><small>${w.tag}</small><br>${w.msg}</div></div>`).join(''):'<div class="note">✅ Tidak ada peringatan aktif.</div>';
+ $('#topZones').innerHTML=[...sc].sort((a,b)=>b.score-a.score).slice(0,6).map(s=>`<div class="trow"><span class="tn">${BANDS[s.band].e} ${s.z.n}</span><div class="tb"><i style="width:${s.score}%;background:${BANDS[s.band].c}"></i></div><span class="tc">${s.score}</span></div>`).join('');
+ $('#latestBox').innerHTML='<table><tr><th>ID</th><th>Tanggal</th><th>Zona</th><th>Jenis</th><th>Sumber</th><th>Status</th></tr>'+
+   latest.map(i=>`<tr><td class="mono" style="color:var(--dim)">${i.id}</td><td>${fmtD(i.tanggal)} · ${i.jam}</td><td><b>${esc(i.zona)}</b></td><td>${(TYPES[i.jenis]||{i:'📋'}).i} ${esc(i.jenis)}</td><td style="color:var(--mut);font-size:11.5px">${esc(i.sumber)}</td><td><span class="chip" style="color:${ST[i.status]||'#8ba0b5'}">${esc(i.status)}</span></td></tr>`).join('')+'</table>';
+ Object.values(CH).forEach(c=>c&&c.destroy());CH={};
+ const mk={};INC.forEach(i=>{if(i.tanggal)mk[i.tanggal.slice(0,7)]=(mk[i.tanggal.slice(0,7)]||0)+1});
+ const keys=Object.keys(mk).sort().slice(-7);
+ Chart.defaults.color='#8ba0b5';Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";Chart.defaults.borderColor='rgba(255,255,255,.06)';
+ CH.t=new Chart($('#chTrend'),{type:'bar',data:{labels:keys.map(k=>BLN[+k.slice(5)-1]+' '+k.slice(2,4)),datasets:[
+   {label:'Kejadian',data:keys.map(k=>mk[k]),backgroundColor:'rgba(240,180,41,.75)',borderRadius:6,order:2},
+   {label:'Trend',data:keys.map(k=>mk[k]),type:'line',borderColor:'#4cc9f0',borderWidth:2,tension:.35,pointRadius:3,pointBackgroundColor:'#4cc9f0',order:1}]},
+   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+ const top8=top.slice(0,8);
+ CH.y=new Chart($('#chType'),{type:'bar',data:{labels:top8.map(t=>t[0]),datasets:[{data:top8.map(t=>t[1]),backgroundColor:top8.map(t=>((TYPES[t[0]]||{c:'#8ba0b5'}).c)+'cc'),borderRadius:5}]},
+   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.05)'}}}}});
+}
+function renderEmptyDash(){
+ $('#dashBox').innerHTML=`
+ <div class="panel fade" style="border-color:rgba(240,180,41,.35)"><div class="panel-h"><h3>🚀 Belum Ada Data — Hubungkan Google Spreadsheet</h3></div><div class="panel-b">
+ <div class="step"><span class="n">1</span><span>Buat/duplikasi Spreadsheet → <b>Extensions › Apps Script</b> → tambahkan <b>code.gs</b> dan <b>index.html</b> → <b>Deploy › Web app</b>. Backend membuat sheet dan struktur kolom otomatis.</span></div>
+ <div class="step"><span class="n">2</span><span>Tempel URL <span class="mono">/exec</span> di bawah, klik hubungkan — data kejadian akan ditarik dari Spreadsheet.</span></div>
+ <div style="display:flex;gap:10px;margin:12px 0 18px;flex-wrap:wrap">
+  <button class="btn gold" onclick="pullSheet(false).then(()=>showView('dash'))">🔄 Tarik Data dari Backend</button>
+  ${can('add')?'<button class="btn" onclick="openIncModal()">＋ Input Kejadian Pertama (GPS + Foto)</button>':''}
+ </div>
+ <h3 style="font-size:16px;margin-bottom:10px">📋 Struktur Kolom Spreadsheet (isi data Anda di sini)</h3>
+ <div style="overflow-x:auto"><table><tr><th>id</th><th>tanggal</th><th>jam</th><th>zona</th><th>lat</th><th>lng</th><th>jenis</th><th>sumber</th><th>dampak</th><th>berulang</th><th>deskripsi</th><th>status</th><th>foto</th><th>petugas</th></tr>
+ <tr><td class="mono">TRT-1001</td><td class="mono">2026-08-10</td><td class="mono">19:30</td><td>Kuta</td><td class="mono">-8.7135</td><td class="mono">115.1793</td><td>Tertib Jalan dan Keselamatan Pejalan Kaki</td><td>Hasil Patroli</td><td class="mono">2</td><td class="mono">TRUE</td><td>PKL di trotoar…</td><td>Dalam Proses</td><td class="mono" style="color:var(--dim)">(URL Drive / kosong)</td><td>I Wayan Dharma</td></tr></table></div>
+ <div class="note" style="margin-top:12px">📝 Aturan format — <b>tanggal</b>: YYYY-MM-DD, <b>jam</b>: HH:MM 24 jam, <b>dampak</b>: 1/2/3, <b>berulang</b>: TRUE/FALSE, <b>jenis</b>: ${Object.keys(TYPES).join(' / ')}, <b>status</b>: ${STATUS.join(' / ')}. Koordinat bisa direkam otomatis lewat tombol 🛰️ GPS saat input di aplikasi.</div>
+ <div style="margin-top:8px;font-size:12px;color:var(--dim)">Ingin melihat tampilan dengan data uji dulu? <a href="#" onclick="loadDemo();return false">Muat data contoh lokal</a> · <a href="#" onclick="loadSamplingToSheet();return false">Isi sampling ke Spreadsheet</a>.</div>
+ </div></div>`;
+}
+function connectFromDash(){
+ const u=$('#dashUrl').value.trim();if(!u)return toast('Masukkan URL Web App','err');
+ SET.url=u;persist();toast('Menghubungkan ke Spreadsheet…');
+ pullSheet(false).then(()=>showView('dash')).catch(()=>toast('Gagal terhubung ke Sheet — periksa URL & deployment','err'));
+}
+function loadDemo(){if(!confirm('Muat DATA CONTOH untuk uji coba tampilan? Data ini bukan data asli dan bisa dikosongkan kembali.'))return;INC=seedIncidents();persist();showView(CUR);toast('Data contoh dimuat (uji coba)','ok')}
+async function loadSamplingToSheet(){if(!confirm('Isi Spreadsheet yang masih kosong dengan data sampling 90 hari?'))return;try{const j=await backendPost({action:'seed'});await pullSheet(false);showView(CUR);toast((j.count||INC.length)+' data sampling tersedia','ok')}catch(e){toast('Gagal membuat sampling: '+e.message,'err')}}
+function clearLocal(){if(!confirm('Kosongkan data lokal? Data di Spreadsheet tidak terpengaruh.'))return;INC=[];persist();showView(CUR);toast('Data lokal dikosongkan','ok')}
+
+/* ================= MAP ================= */
+let MAP,G1,G2,mapInited=false;
+const ML={pts:true,risk:true,band:'Semua',types:new Set(Object.keys(TYPES))};
+function initMap(){
+ if(mapInited)return;mapInited=true;
+ MAP=L.map('mapEl',{zoomControl:false}).setView([-8.67,115.17],11);
+ L.control.zoom({position:'bottomright'}).addTo(MAP);
+ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19}).addTo(MAP);
+ G1=L.layerGroup().addTo(MAP);G2=L.layerGroup().addTo(MAP);
+ $('#bandSeg').innerHTML=['Semua','Pagi','Siang','Sore','Malam'].map(b=>`<button class="${b==='Semua'?'on':''}" onclick="setBand('${b}',this)">${b==='Semua'?'🕐 Semua':b+' · '+BANDH[b]}</button>`).join('');
+ $('#typeChips').innerHTML=Object.entries(TYPES).map(([t,m])=>`<button class="tchip on" data-t="${t}" style="border-color:${m.c};background:${m.c};color:#0c1520" onclick="tglType('${t}',this)">${m.i} ${t}</button>`).join('');
+ $('#legTypes').innerHTML=Object.entries(TYPES).slice(0,4).map(([t,m])=>`<span style="margin-right:8px"><span class="dot" style="background:${m.c}"></span> ${t}</span>`).join('');
+}
+function setBand(b,el){ML.band=b;$$('#bandSeg button').forEach(x=>x.classList.remove('on'));el.classList.add('on');rebuildMap()}
+function tglType(t,el){ML.types.has(t)?ML.types.delete(t):ML.types.add(t);el.classList.toggle('on');const c=TYPES[t].c;el.style.background=el.classList.contains('on')?c:'#0c1520';el.style.color=el.classList.contains('on')?'#0c1520':'var(--mut)';rebuildMap()}
+function tglCard(){$('#lc1').classList.toggle('on',$('#ly1').checked);$('#lc2').classList.toggle('on',$('#ly2').checked);$('#lc3').classList.toggle('on',$('#ly3').checked);$('#lc4').classList.toggle('on',$('#ly4').checked)}
+function fitBadung(){MAP.fitBounds([[-8.88,115.06],[-8.40,115.30]])}
+function rebuildMap(){
+ if(!mapInited)return;G1.clearLayers();G2.clearLayers();
+ const sc=computeScores();let shown=0;
+ if($('#ly2').checked&&ML.risk)sc.forEach(s=>{
+   if(s.f===0)return;const m=BANDS[s.band];
+   const c=L.circle([s.z.lat,s.z.lng],{radius:260+s.score*11,color:m.c,weight:1.5,fillColor:m.c,fillOpacity:.16}).addTo(G2);
+   c.bindPopup(zonePopup(s),{maxWidth:280});
+   if(s.band!=='R')c.bindTooltip(`${s.z.n} · ${s.score}`,{permanent:true,direction:'top',className:'zlab',offset:[0,-8]});
+ });
+ if($('#ly1').checked&&ML.pts)INC.forEach(i=>{
+   if(!i.lat||!i.lng)return;
+   const h=+i.jam.slice(0,2);
+   if(ML.band!=='Semua'&&bandOf(h)!==ML.band)return;
+   if(!ML.types.has(i.jenis))return;
+   shown++;
+   const mk=L.circleMarker([i.lat,i.lng],{radius:5.5,color:'#0a1017',weight:1.5,fillColor:(TYPES[i.jenis]||{c:'#8ba0b5'}).c,fillOpacity:.95}).addTo(G1);
+   mk.bindPopup(incPopup(i),{maxWidth:290});
+ });
+ $('#mapStat').innerHTML=`${shown} titik ditampilkan · ${INC.length} total`;
+}
+function incPopup(i){
+ const m=TYPES[i.jenis]||TYPES['Lainnya'];
+ return `<div class="pp"><h4 style="color:${m.c}">${m.i} ${esc(i.jenis)}</h4>
+ <span class="chip" style="color:${ST[i.status]||'#666'};border-color:${ST[i.status]||'#999'}66">${esc(i.status)}</span> <span class="mono" style="font-size:10px;color:#888">${i.id}</span>
+ <div class="gr"><b>📍 Lokasi</b><span>${esc(i.zona)} <span style="font-size:10px;color:#999">(${i.lat}, ${i.lng})</span></span><b>📅 Tanggal</b><span>${fmtD(i.tanggal)}</span><b>⏰ Waktu</b><span>${i.jam} WITA (${bandOf(+i.jam.slice(0,2))})</span><b>📊 Dampak</b><span>${'●'.repeat(i.dampak)}${'○'.repeat(3-i.dampak)} ${['','Rendah','Sedang','Tinggi'][i.dampak]}${i.berulang?' · berulang':''}</span><b>📝 Uraian</b><span>${esc(i.deskripsi)}</span><b>👮 Petugas</b><span>${esc(i.petugas)}</span><b>📮 Sumber</b><span>${esc(i.sumber)}</span></div>
+ ${i.foto?`<img src="${i.foto}" alt="dokumentasi">`:''}
+ ${can('status')?`<b style="font-size:11px;color:#777">STATUS PENANGANAN</b><select onchange="P_ST('${i.id}',this.value)">${STATUS.map(s=>`<option ${s===i.status?'selected':''}>${s}</option>`).join('')}</select>`:''}</div>`;
+}
+function zonePopup(s){
+ const top={};s.items.forEach(i=>top[i.jenis]=(top[i.jenis]||0)+1);
+ const tt=Object.entries(top).sort((a,b)=>b[1]-a[1])[0];
+ return `<div class="pp"><h4>${s.z.n} <span class="mono" style="font-size:13px;color:${BANDS[s.band].c}">${s.score}</span></h4>
+ <span class="badge b-${s.band}">${BANDS[s.band].n}</span>
+ <div class="gr"><b>Kejadian 90 hr</b><span>${s.f}</span><b>Rata-rata dampak</b><span>${s.sev.toFixed(1)} / 3</span><b>Kejadian berulang</b><span>${Math.round(s.rep*100)}%</span><b>Dominan</b><span>${tt?tt[0]+' ('+tt[1]+')':'—'}</span></div>
+ <button class="btn sm gold" style="width:100%;justify-content:center" onclick="gotoRec()">🎯 Lihat Rekomendasi Patroli</button></div>`;
+}
+function P_ST(id,v){const i=INC.find(x=>x.id===id);if(!i)return;i.status=v;i.updatedAt=Date.now();persist();sheetSave(i);toast(`Status ${id} → ${v}`,'ok');rebuildMap();if(CUR==='data')renderData()}
+function gotoRec(){showView('rec')}
+function gotoZone(n){showView('map');const z=ZONES.find(x=>x.n===n);if(z&&MAP)MAP.setView([z.lat,z.lng],14)}
+
+/* ================= MINI MAP + GPS (form tambah/edit) ================= */
+let MODALMAP=null,MODALMK=null;
+const PIN=L.divIcon({className:'',html:'<div style="font-size:27px;line-height:1;transform:translate(-5px,-26px);filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))">📍</div>',iconSize:[0,0],iconAnchor:[0,0]});
+function initMiniMap(lat,lng){
+ setTimeout(()=>{
+   const el=$('#miniMap');if(!el)return;
+   if(MODALMAP){MODALMAP.remove();MODALMAP=null;MODALMK=null}
+   const has=!(isNaN(lat)||isNaN(lng));
+   MODALMAP=L.map('miniMap').setView(has?[lat,lng]:[-8.68,115.17],has?15:11);
+   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO'}).addTo(MODALMAP);
+   MODALMK=L.marker(has?[lat,lng]:[-8.68,115.17],{draggable:true,icon:PIN}).addTo(MODALMAP);
+   MODALMK.on('dragend',()=>{const p=MODALMK.getLatLng();setCoord(p.lat,p.lng,false)});
+   MODALMAP.on('click',e=>setCoord(e.latlng.lat,e.latlng.lng,true));
+   MODALMAP.invalidateSize();
+ },90);
+}
+function setCoord(lat,lng,pan){
+ const a=$('#fLat'),o=$('#fLng');if(!a||!o)return;
+ a.value=(+lat).toFixed(5);o.value=(+lng).toFixed(5);
+ if(MODALMK)MODALMK.setLatLng([lat,lng]);
+ if(MODALMAP&&pan)MODALMAP.setView([lat,lng],Math.max(MODALMAP.getZoom(),16));
+ autoZone(lat,lng,true);
+}
+function coordEdited(){
+ const la=parseFloat($('#fLat').value),lo=parseFloat($('#fLng').value);
+ if(isNaN(la)||isNaN(lo))return;
+ if(MODALMK)MODALMK.setLatLng([la,lo]);
+ if(MODALMAP)MODALMAP.setView([la,lo],Math.max(MODALMAP.getZoom(),14));
+}
+function grabGPS(){
+ const st=$('#gpsStat');
+ if(!navigator.geolocation){st.innerHTML='❌ browser tidak mendukung geolocation';return toast('Browser tidak mendukung geolocation','err')}
+ st.innerHTML='⏳ merekam koordinat GPS…';st.style.color='var(--gold)';
+ navigator.geolocation.getCurrentPosition(pos=>{
+   setCoord(pos.coords.latitude,pos.coords.longitude,true);
+   st.innerHTML='✅ koordinat terekam · akurasi ±'+Math.round(pos.coords.accuracy)+' m';st.style.color='var(--grn)';
+   toast('Koordinat berhasil direkam','ok');
+ },err=>{
+   st.innerHTML='❌ '+({1:'izin lokasi ditolak — izinkan akses lokasi di browser',2:'sinyal GPS tidak tersedia',3:'waktu perekaman habis'}[err.code]||'gagal merekam');st.style.color='var(--red)';
+   toast('Gagal GPS: pastikan izin lokasi aktif & buka via HTTPS','err');
+ },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+function autoZone(lat,lng,silent){
+ let best=null,bd=1e9;
+ ZONES.forEach(z=>{const d=Math.hypot(z.lat-lat,z.lng-lng);if(d<bd){bd=d;best=z}});
+ if(best&&$('#fZona')){$('#fZona').value=best.n+' — Kec. '+best.k;
+   if(!silent)toast('Zona terdekat: '+best.n,'ok')}
+ return best;
+}
+function nearZoneBtn(){
+ const la=parseFloat($('#fLat').value),lo=parseFloat($('#fLng').value);
+ if(isNaN(la)||isNaN(lo))return toast('Rekam/klik koordinat terlebih dahulu','err');
+ autoZone(la,lo,false);
+}
+function ZONA_PICK(v){
+ const z=ZONES.find(x=>(x.n+' — Kec. '+x.k)===v);if(!z)return;
+ const la=parseFloat($('#fLat').value),lo=parseFloat($('#fLng').value);
+ if((isNaN(la)||isNaN(lo))&&MODALMAP){MODALMAP.setView([z.lat,z.lng],13);if(MODALMK)MODALMK.setLatLng([z.lat,z.lng])}
+}
+function prevFoto(inp){
+ const f=inp.files[0],pv=$('#fotoPrev');if(!pv)return;
+ if(!f){pv.innerHTML='';return}
+ const r=new FileReader();
+ r.onload=e=>pv.innerHTML='<img src="'+e.target.result+'" style="width:120px;border-radius:8px;margin-top:8px;border:1px solid var(--line2)">';
+ r.readAsDataURL(f);
+}
+
+/* ================= DATA ================= */
+const FT={q:'',jenis:'',sumber:'',status:'',zona:'',range:''};let PG=1;const PER=13;
+function filtered(){
+ return INC.filter(i=>{
+  if(FT.q&&!(i.id+i.zona+i.jenis+i.deskripsi+i.sumber+i.petugas).toLowerCase().includes(FT.q.toLowerCase()))return false;
+  if(FT.jenis&&i.jenis!==FT.jenis)return false;
+  if(FT.sumber&&i.sumber!==FT.sumber)return false;
+  if(FT.status&&i.status!==FT.status)return false;
+  if(FT.zona&&i.zona!==FT.zona)return false;
+  if(FT.range&&age(i)>+FT.range)return false;
+  return true}).sort((a,b)=>(b.tanggal+b.jam).localeCompare(a.tanggal+a.jam));
+}
+function renderData(){
+ if(!INC.length){
+  $('#dataBox').innerHTML=`<div class="note">📭 Belum ada data kejadian. Sinkronkan data melalui <b>backend</b>, lalu klik <b>Tarik dari Sheet</b>${can('add')?' — atau mulai input manual (dengan GPS & foto)':''}.</div>
+  <div class="toolbar">${SET.url?`<button class="btn gold sm" onclick="pullSheet(false).then(()=>renderData())">⬇️ Tarik dari Sheet sekarang</button>`:''}${can('add')?'<button class="btn sm" onclick="openIncModal()">＋ Tambah Kejadian</button>':''}</div>`;
+  return;
+ }
+ const rows=filtered(),pages=Math.max(1,Math.ceil(rows.length/PER));PG=Math.min(PG,pages);
+ const pg=rows.slice((PG-1)*PER,PG*PER);
+ $('#dataBox').innerHTML=`
+ <div class="note">📮 Modul ini <b>mengagregasi data eksisting</b> — pengaduan masyarakat, laporan petugas, hasil patroli, hasil penertiban, kejadian gangguan Trantibum, kegiatan pengawasan, dan data historis. Sumber utama: <b>Google Spreadsheet</b>.</div>
+ <div class="toolbar">
+  <input type="text" placeholder="🔍 Cari ID / zona / uraian…" value="${esc(FT.q)}" oninput="FT.q=this.value;PG=1;renderData()">
+  <select onchange="FT.jenis=this.value;PG=1;renderData()"><option value="">Semua Jenis</option>${Object.keys(TYPES).map(t=>`<option ${FT.jenis===t?'selected':''}>${t}</option>`).join('')}</select>
+  <select onchange="FT.sumber=this.value;PG=1;renderData()"><option value="">Semua Sumber</option>${SOURCES.map(s=>`<option ${FT.sumber===s?'selected':''}>${s}</option>`).join('')}</select>
+  <select onchange="FT.status=this.value;PG=1;renderData()"><option value="">Semua Status</option>${STATUS.map(s=>`<option ${FT.status===s?'selected':''}>${s}</option>`).join('')}</select>
+  <select onchange="FT.zona=this.value;PG=1;renderData()"><option value="">Semua Wilayah</option>${ZONES.map(z=>`<option ${FT.zona===z.n?'selected':''}>${z.n}</option>`).join('')}</select>
+  <select onchange="FT.range=this.value;PG=1;renderData()"><option value="">Semua Waktu</option><option value="7" ${FT.range==='7'?'selected':''}>7 hari</option><option value="30" ${FT.range==='30'?'selected':''}>30 hari</option><option value="90" ${FT.range==='90'?'selected':''}>90 hari</option></select>
+  ${SET.url?`<button class="btn sm" onclick="pullSheet(false).then(()=>renderData())">⬇️ Tarik</button>`:''}
+  ${can('add')?'<button class="btn gold sm" onclick="openIncModal()">＋ Tambah Kejadian</button>':''}
+  <button class="btn sm" onclick="exportCSV()">📄 CSV</button>
+ </div>
+ <div class="panel"><div class="panel-b" style="padding:4px 8px;overflow-x:auto"><table>
+ <tr><th>ID</th><th>📅 Tanggal / ⏰ Jam</th><th>📍 Wilayah</th><th>🏷️ Jenis</th><th>Sumber</th><th>📊 Dampak</th><th>Status Penanganan</th><th>📷</th><th></th></tr>
+ ${pg.map(i=>`<tr>
+  <td class="mono" style="color:var(--dim);font-size:11px">${i.id}</td>
+  <td>${fmtD(i.tanggal)}<br><span class="mono" style="font-size:11px;color:var(--mut)">${i.jam} WITA</span></td>
+  <td><b>${esc(i.zona)}</b>${i.berulang?' <span class="chip" style="font-size:9px;color:var(--vio)">↻ berulang</span>':''}</td>
+  <td><span class="chip" style="border-color:${(TYPES[i.jenis]||{c:'#8ba0b5'}).c}55;color:${(TYPES[i.jenis]||{c:'#8ba0b5'}).c}">${(TYPES[i.jenis]||{i:'📋'}).i} ${esc(i.jenis)}</span></td>
+  <td style="font-size:11px;color:var(--mut)">${esc(i.sumber)}</td>
+  <td style="color:${['','#3ddc84','#ff9838','#ff5252'][i.dampak]}">${'●'.repeat(i.dampak)}${'○'.repeat(3-i.dampak)}</td>
+  <td>${can('status')?`<select class="stsel st-${String(i.status).replace(/ /g,'')}" onchange="UPD_ST('${i.id}',this.value)">${STATUS.map(s=>`<option ${s===i.status?'selected':''}>${s}</option>`).join('')}</select>`:`<span class="chip" style="color:${ST[i.status]||'#8ba0b5'}">${esc(i.status)}</span>`}</td>
+  <td>${i.foto?`<img class="thumb" src="${i.foto}" onclick="lightbox('${i.id}')">`:'<div class="thumb">📷</div>'}</td>
+  <td style="white-space:nowrap"><button class="ibtn" title="Detail" onclick="VIEW_INC('${i.id}')">👁</button>${can('edit')?`<button class="ibtn" title="Edit" onclick="openIncModal('${i.id}')">✎</button>`:''}${can('del')?`<button class="ibtn" title="Hapus" onclick="DEL_INC('${i.id}')">🗑</button>`:''}</td></tr>`).join('')}
+ </table></div>
+ <div class="pgr"><span>Menampilkan ${pg.length} dari ${rows.length} kejadian</span>
+  <button class="btn sm" ${PG<=1?'disabled':''} onclick="PG--;renderData()">‹</button><span class="mono">${PG}/${pages}</span><button class="btn sm" ${PG>=pages?'disabled':''} onclick="PG++;renderData()">›</button></div></div>`;
+}
+function UPD_ST(id,v){P_ST(id,v)}
+function DEL_INC(id){if(!can('del'))return;if(!confirm('Hapus kejadian '+id+'?'))return;INC=INC.filter(x=>x.id!==id);persist();sheetDel(id);renderData();toast('Kejadian dihapus','ok')}
+function lightbox(id){const i=INC.find(x=>x.id===id);if(!i||!i.foto)return;openModal(`<div class="mh"><h3>📷 Dokumentasi ${id}</h3><button class="x" onclick="closeModal()">✕</button></div><div class="mb"><img src="${i.foto}" style="width:100%;border-radius:10px"></div>`)}
+function VIEW_INC(id){
+ const i=INC.find(x=>x.id===id);if(!i)return;
+ openModal(`<div class="mh"><h3>📋 Detail Kejadian ${i.id}</h3><button class="x" onclick="closeModal()">✕</button></div><div class="mb">
+ <div class="frow"><div><label>Wilayah</label><div><b>${esc(i.zona)}</b></div></div><div><label>Jenis Gangguan</label><div>${(TYPES[i.jenis]||{i:'📋'}).i} ${esc(i.jenis)}</div></div>
+ <div><label>Tanggal / Waktu</label><div>${fmtD(i.tanggal)} · ${i.jam} WITA</div></div><div><label>Sumber Data</label><div>${esc(i.sumber)}</div></div>
+ <div><label>Tingkat Dampak</label><div style="color:${['','#3ddc84','#ff9838','#ff5252'][i.dampak]}">${['','Rendah','Sedang','Tinggi'][i.dampak]} ${i.berulang?'· ↻ berulang':''}</div></div><div><label>Petugas</label><div>${esc(i.petugas)}</div></div></div>
+ <label>📍 Titik Koordinat</label><div class="mono" style="font-size:13px">${i.lat}, ${i.lng} &nbsp;<a href="https://maps.google.com/?q=${i.lat},${i.lng}" target="_blank">↗ buka di Google Maps</a></div>
+ <label>Uraian</label><div style="line-height:1.6;color:var(--mut)">${esc(i.deskripsi)}</div>
+ ${i.foto?`<img src="${i.foto}" style="width:100%;border-radius:10px;margin-top:12px">`:''}
+ <div style="display:flex;gap:8px;margin-top:16px"><button class="btn gold sm" onclick="closeModal();gotoZone('${esc(i.zona)}')">🗺️ Lihat di Peta</button>
+ ${can('edit')?`<button class="btn sm" onclick="openIncModal('${i.id}')">✎ Edit</button>`:''}</div></div>`);
+}
+function openIncModal(id){
+ if(!can('add')&&!can('edit'))return;
+ const i=id?INC.find(x=>x.id===id):null;
+ const iz=i?ZONES.find(z=>z.n===i.zona):null;
+ openModal(`<div class="mh"><h3>${i?'✎ Edit':'＋ Tambah'} Kejadian Trantib</h3><button class="x" onclick="closeModal()">✕</button></div><div class="mb">
+ <div class="frow">
+  <div><label>📅 Tanggal *</label><input type="date" id="fTgl" value="${i?i.tanggal:fmtISO(new Date())}"></div>
+  <div><label>⏰ Jam (WITA) *</label><input type="time" id="fJam" value="${i?i.jam:'19:00'}"></div>
+  <div><label>🏷️ Jenis Gangguan *</label><select id="fJenis">${Object.keys(TYPES).map(t=>`<option ${i&&i.jenis===t?'selected':''}>${t}</option>`).join('')}</select></div>
+  <div><label>📮 Sumber Data *</label><select id="fSrc">${SOURCES.map(s=>`<option ${i&&i.sumber===s?'selected':''}>${s}</option>`).join('')}</select></div>
+  <div><label>📊 Tingkat Dampak *</label><select id="fDmp"><option value="1" ${i&&i.dampak===1?'selected':''}>Rendah</option><option value="2" ${i&&i.dampak===2?'selected':''}>Sedang</option><option value="3" ${i&&i.dampak===3?'selected':''}>Tinggi</option></select></div>
+  <div><label>📍 Wilayah / Zona *</label><select id="fZona" onchange="ZONA_PICK(this.value)">${ZONES.map(z=>`<option ${i&&i.zona===z.n?'selected':''}>${z.n} — Kec. ${z.k}</option>`).join('')}</select></div>
+ </div>
+
+ <div style="border:1px dashed rgba(240,180,41,.4);border-radius:10px;padding:13px;margin-top:16px;background:rgba(240,180,41,.03)">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+   <b style="font-family:var(--disp);letter-spacing:.08em;font-size:15px">📍 TITIK KOORDINAT</b>
+   <button class="btn sm gold" type="button" onclick="grabGPS()">🛰️ Rekam GPS</button>
+   <button class="btn sm" type="button" onclick="nearZoneBtn()">🎯 Deteksi Zona Terdekat</button>
+  </div>
+  <div id="gpsStat" class="mono" style="font-size:10.5px;color:var(--dim);margin-top:5px">Rekam via GPS, klik pada peta di bawah, atau isi manual.</div>
+  <div class="frow" style="margin-top:4px">
+   <div><label>Latitude</label><input id="fLat" class="mono" placeholder="-8.7xxxx" value="${i?i.lat:''}" onchange="coordEdited()"></div>
+   <div><label>Longitude</label><input id="fLng" class="mono" placeholder="115.1xxxx" value="${i?i.lng:''}" onchange="coordEdited()"></div>
+  </div>
+  <div id="miniMap" style="height:225px;border-radius:10px;margin-top:9px;border:1px solid var(--line2)"></div>
+ </div>
+
+ <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="fRep" style="width:auto" ${i&&i.berulang?'checked':''}> Kejadian berulang di lokasi yang sama</label>
+ <label>📝 Uraian Kejadian</label><textarea id="fDes" rows="3" style="width:100%">${i?esc(i.deskripsi):''}</textarea>
+ <div class="frow">
+  <div><label>👮 Petugas Pelapor</label><input id="fPet" value="${i?esc(i.petugas):SESSION.n}"></div>
+  <div><label>📷 Foto Dokumentasi — OPSIONAL</label>
+   <input type="file" id="fFoto" accept="image/*" capture="environment" style="width:100%;padding:7px" onchange="prevFoto(this)">
+   <span style="font-size:10px;color:var(--dim)">Di HP langsung membuka kamera · tersimpan ke Drive saat online</span>
+   <div id="fotoPrev">${i&&i.foto?`<img src="${i.foto}" style="width:120px;border-radius:8px;margin-top:8px;border:1px solid var(--line2)">`:''}</div>
+  </div>
+ </div>
+ <div style="display:flex;gap:9px;margin-top:18px">
+  <button class="btn gold" onclick="saveInc('${id||''}')">💾 Simpan${SET.url?' &amp; Kirim ke Sheet':''}</button>
+  <button class="btn ghost" onclick="closeModal()">Batal</button>
+ </div></div>`,true);
+ initMiniMap(i?i.lat:(iz?iz.lat:NaN),i?i.lng:(iz?iz.lng:NaN));
+}
+async function saveInc(id){
+ const tgl=$('#fTgl').value,jam=$('#fJam').value,zn=$('#fZona').value.split(' — ')[0];
+ if(!tgl||!jam)return toast('Tanggal & jam wajib diisi','err');
+ const z=ZONES.find(x=>x.n===zn),R2=Math.random;
+ let i=id?INC.find(x=>x.id===id):{id:'TRT-'+(Math.max(1000,...INC.map(x=>+String(x.id).slice(4)||0))+1),status:'Laporan Masuk',foto:'',lat:NaN,lng:NaN};
+ Object.assign(i,{tanggal:tgl,jam,zona:zn,jenis:$('#fJenis').value,sumber:$('#fSrc').value,dampak:+$('#fDmp').value,berulang:$('#fRep').checked,deskripsi:$('#fDes').value.trim(),petugas:$('#fPet').value.trim()||'—',updatedAt:Date.now()});
+ const la=parseFloat($('#fLat').value),lo=parseFloat($('#fLng').value);
+ if(!isNaN(la)&&!isNaN(lo)){i.lat=+la.toFixed(5);i.lng=+lo.toFixed(5)}
+ else if(!id||isNaN(i.lat)){i.lat=+(z.lat+(R2()-0.5)*0.014).toFixed(5);i.lng=+(z.lng+(R2()-0.5)*0.014).toFixed(5);
+   toast('Koordinat kosong — dipakai titik acuan zona '+zn,'err')}
+ const f=$('#fFoto').files[0];
+ if(f)i.foto=await compressImg(f);
+ if(!id)INC.push(i);
+ persist();closeModal();sheetSave(i);renderData();
+ toast(`${i.id} tersimpan (📍 ${i.lat}, ${i.lng})${SET.url?' & dikirim ke Sheet':''}`,'ok');
+}
+function compressImg(file){return new Promise(res=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,720/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',0.72))};img.src=url})}
+function exportCSV(){
+ const rows=filtered(),hd=['id','tanggal','jam','zona','lat','lng','jenis','sumber','dampak','berulang','deskripsi','status','foto','petugas'];
+ const csv=[hd.join(';'),...rows.map(i=>hd.map(h=>'"'+String(i[h]??'').replace(/"/g,'""')+'"').join(';'))].join('\n');
+ dl('trantib_badung.csv',new Blob(['\ufeff'+csv],{type:'text/csv'}));toast('CSV diekspor','ok');
+}
+function dl(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+
+/* ================= RISK VIEW ================= */
+function renderRisk(){
+ const editable=can('weights');
+ $('#riskWin').textContent='JENDELA: 90 HARI · BOBOT TOTAL HARUS 100%';
+ const defs=[['f','Frekuensi kejadian','Seberapa sering kejadian di wilayah tersebut'],['t','Tingkat gangguan','Rata-rata tingkat/keparahan gangguan'],['b','Kejadian berulang','Proporsi kejadian berulang di lokasi yang sama'],['d','Dampak terhadap masyarakat','Skala dampak & potensi gangguan publik']];
+ $('#weightBox').innerHTML=defs.map(([k,l,d])=>`<div class="wrow2"><div class="wl">${l}<div style="font-size:10px;color:var(--dim);font-weight:400;text-transform:none;letter-spacing:0">${d}</div></div>
+  <input type="range" min="5" max="60" value="${WEIGHTS[k]}" ${editable?'':'disabled'} oninput="WUPD('${k}',this.value)">
+  <span class="wv" id="wv-${k}">${WEIGHTS[k]}%</span></div>`).join('')+`
+ <div style="display:flex;gap:10px;align-items:center;margin-top:6px"><span style="font-size:12px;color:var(--mut)">Total: <b class="mono" id="wsum">100%</b></span>
+ ${editable?'<button class="btn gold sm" style="margin-left:auto" onclick="saveWeights()">💾 Simpan Bobot</button><button class="btn sm" onclick="resetWeights()">↺ Default</button>':''}</div>
+ <hr style="border-color:var(--line);margin:16px 0">
+ <div class="frow"><div><label>Ambang Rendah–Sedang</label><input type="number" id="thL" value="${TH.low}" ${editable?'':'disabled'} style="width:100%"></div>
+ <div><label>Ambang Sedang–Tinggi</label><input type="number" id="thH" value="${TH.high}" ${editable?'':'disabled'} style="width:100%"></div></div>
+ <div class="note" style="margin-top:13px">🤝 Bobot dapat disesuaikan berdasarkan <b>kesepakatan internal Satpol PP</b>. 🟢 0–${TH.low} Rendah · 🟠 ${TH.low+1}–${TH.high} Sedang · 🔴 ${TH.high+1}–100 Tinggi.</div>`;
+ const sc=computeScores().sort((a,b)=>b.score-a.score);
+ $('#riskTable').innerHTML=(INC.length?'':'<div class="note">📭 Data masih kosong — hubungkan Spreadsheet terlebih dahulu agar skoring dapat dihitung.</div>')+
+ `<table><tr><th>#</th><th>Wilayah</th><th>Kecamatan</th><th>Kejadian 90 hr</th><th>Frekuensi</th><th>Tingkat</th><th>Berulang</th><th>Dampak</th><th>Skor</th><th>Zona</th><th></th></tr>`+
+ sc.map((s,x)=>`<tr><td class="mono" style="color:var(--dim)">${x+1}</td><td><b>${s.z.n}</b></td><td style="color:var(--mut)">${s.z.k}</td>
+ <td class="mono">${s.f}</td>
+ ${['f','t','b','d'].map(k=>`<td><span class="sbar"><i style="width:${Math.round(s.subs[k]*100)}%;background:${BANDS[s.band].c}"></i></span><span class="mono" style="font-size:10px;color:var(--dim)">${Math.round(s.subs[k]*100)}</span></td>`).join('')}
+ <td class="scorebig mono" style="color:${BANDS[s.band].c}">${s.score}</td>
+ <td><span class="badge b-${s.band}">${BANDS[s.band].e} ${BANDS[s.band].n}</span></td>
+ <td><button class="ibtn" title="Lihat di peta" onclick="gotoZone('${s.z.n}')">🗺️</button></td></tr>`).join('')+'</table>';
+}
+function WUPD(k,v){WEIGHTS[k]=+v;$('#wv-'+k).textContent=v+'%';const s=WEIGHTS.f+WEIGHTS.t+WEIGHTS.b+WEIGHTS.d;const e=$('#wsum');e.textContent=s+'%';e.style.color=s===100?'var(--grn)':'var(--red)'}
+function saveWeights(){const s=WEIGHTS.f+WEIGHTS.t+WEIGHTS.b+WEIGHTS.d;if(s!==100)return toast('Total bobot harus 100% (saat ini '+s+'%)','err');TH.low=+$('#thL').value||30;TH.high=+$('#thH').value||60;persist();renderRisk();toast('Bobot & ambang disimpan — semua skor diperbarui','ok')}
+function resetWeights(){WEIGHTS={f:30,t:30,b:20,d:20};TH={low:30,high:60};persist();renderRisk();toast('Bobot dikembalikan ke default','ok')}
+
+/* ================= REKOMENDASI ================= */
+let RECWIN=90;
+function renderRec(){
+ if(!INC.length){$('#recBox').innerHTML='<div class="note">📭 Belum ada data untuk dianalisis. Sinkronkan data melalui backend, lalu tarik data.</div>';return}
+ const recs=genRecs(RECWIN);
+ $('#recBox').innerHTML=`
+ <div class="toolbar"><span style="font-size:12.5px;color:var(--mut)">Jendela analisis:</span>
+ ${[30,60,90].map(w=>`<button class="btn sm ${RECWIN===w?'gold':''}" onclick="RECWIN=${w};renderRec()">${w} hari</button>`).join('')}
+ <span class="chip" style="margin-left:auto"><span class="dot pulse" style="background:var(--gold)"></span> Sistem menganalisis pola hari, jam &amp; konsentrasi kejadian</span></div>
+ <div class="recgrid">${recs.map(r=>{
+   const key=r.zona.n+'|'+RECWIN,ac=ACT[key]||{};
+   const steps=['Patroli','Koordinasi','Pencegahan','Penertiban'];
+   return`<div class="rec pr${r.prio}"><div class="rec-in">
+   <div class="rec-top"><span class="prio pr-${r.prio}">PRIORITAS ${({T:'TINGGI',S:'SEDANG',R:'RENDAH'})[r.prio]}</span><span class="scorebig mono" style="color:${BANDS[r.prio].c}">⌀ ${r.score}</span></div>
+   <h3>${r.zona.n}<small>KEC. ${r.zona.k.toUpperCase()}</small></h3>
+   <div class="stat">📊 <b>${r.f} kejadian</b> dalam ${RECWIN} hari terakhir<br>📈 <b>${r.sh}%</b> kejadian terkonsentrasi pada <b>${r.hari}</b> · dominan ${(TYPES[r.type]||{i:'📋'}).i} <b>${r.type}</b> (${r.typeN} kejadian) · puncak pada waktu <b>${r.band}</b></div>
+   <div class="plan">🎯 <b>REKOMENDASI PATROLI</b><br>📍 Lokasi&nbsp;&nbsp;: Zona ${r.zona.n}<br>📅 Hari&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${r.hari}<br>⏰ Waktu&nbsp;&nbsp;: ${p2(r.h1)}.00–${p2(r.h2)}.00 WITA<br>🏷️ Fokus&nbsp;&nbsp;&nbsp;: Penanganan ${r.type}</div>
+   <div class="chain">${steps.map((st2,ix)=>`<label class="${ac[st2]?'done':''}"><input type="checkbox" ${ac[st2]?'checked':''} onchange="REC_ACT('${r.zona.n}',${RECWIN},'${st2}',this.checked)"> ${ix+1}. ${st2}</label>`).join('')}</div>
+   <div class="rec-foot"><button class="btn sm" onclick="gotoZone('${r.zona.n}')">🗺️ Lihat di Peta</button>
+   <button class="btn sm gold" onclick="REC_DONE('${r.zona.n}',${RECWIN})">${ac._done?'✅ Sudah Ditindaklanjuti':'Tandai Ditindaklanjuti'}</button></div>
+   </div></div>`}).join('')||'<div class="note">Belum ada wilayah dengan kejadian cukup untuk dianalisis.</div>'}</div>`;
+}
+function REC_ACT(z,w,st,v){const k=z+'|'+w;ACT[k]=ACT[k]||{};ACT[k][st]=v;persist();renderRec()}
+function REC_DONE(z,w){const k=z+'|'+w;ACT[k]=ACT[k]||{};ACT[k]._done=!ACT[k]._done;persist();renderRec();if(ACT[k]._done)toast(`Zona ${z} ditandai ditindaklanjuti`,'ok')}
+
+/* ================= WARNING ================= */
+function renderWarn(){
+ if(!INC.length){$('#warnBox').innerHTML='<div class="note">📭 Early Warning aktif setelah data dari Spreadsheet masuk.</div>';return}
+ const ws=genWarnings(),ack=Object.entries(WACK);
+ $('#warnBox').innerHTML=`
+ <div class="note">🧠 Sistem mendeteksi otomatis: (1) peningkatan gangguan ≥30% pada suatu wilayah, (2) wilayah masuk kategori rawan tinggi, (3) jenis gangguan meningkat 3 minggu berturut-turut. Kasi menentukan langkah: <b>Patroli → Koordinasi → Pencegahan → Penertiban</b>.</div>
+ <h3 style="margin:16px 0 11px;font-size:18px">🚨 Peringatan Aktif (${ws.length})</h3>
+ ${ws.map(w=>`<div class="alert ${w.sev}"><span class="ai pulse">${w.icon}</span><div><div class="at">${w.tag}</div><div class="am">${w.msg}</div></div>
+  <div class="ax"><button class="btn sm gold" onclick="ACK_WARN('${hash(w.msg)}')">✓ Tindak Lanjut</button></div></div>`).join('')||'<div class="panel"><div class="panel-b">✅ Tidak ada peringatan aktif saat ini.</div></div>'}
+ ${ack.length?`<h3 style="margin:20px 0 11px;font-size:18px">✅ Sudah Ditindaklanjuti</h3>`+ack.map(([k,v])=>`<div class="alert" style="opacity:.6"><span class="ai">✔️</span><div><div class="at">TINDAK LANJUT: ${v.a.toUpperCase()} · ${fmtD(v.d.slice(0,10))}</div></div></div>`).join(''):''}`;
+}
+function ACK_WARN(key){
+ openModal(`<div class="mh"><h3>🧭 Pilih Langkah Tindak Lanjut</h3><button class="x" onclick="closeModal()">✕</button></div><div class="mb">
+ ${['Patroli','Koordinasi','Pencegahan','Penertiban'].map((s,ix)=>`<button class="btn" style="width:100%;justify-content:flex-start;margin-bottom:8px" onclick="WACK['${key}']={d:new Date().toISOString(),a:'${s}'};persist();closeModal();renderWarn();toast('Peringatan ditindaklanjuti: ${s}','ok')">${ix+1}. ${s}</button>`).join('')}</div>`);
+}
+
+/* ================= USERS ================= */
+function renderUsers(){
+ if(!can('users'))return;
+ $('#userBox').innerHTML=`<div class="toolbar"><span style="font-size:12.5px;color:var(--mut)">${USERS.length} pengguna terdaftar · role: admin (penuh) · kasi (analisis & status) · petugas (input data) · viewer (baca saja)</span>
+ <button class="btn gold sm" style="margin-left:auto" onclick="openUserModal()">＋ Tambah User</button></div>
+ <div class="panel"><div class="panel-b" style="padding:4px 8px"><table><tr><th>Username</th><th>Nama</th><th>Role</th><th>Status</th><th>Dibuat</th><th>Aksi</th></tr>
+ ${USERS.map(u=>`<tr><td class="mono">${u.u}</td><td><b>${esc(u.n)}</b></td>
+ <td><span class="chip" style="color:${({admin:'#f0b429',kasi:'#4cc9f0',petugas:'#3ddc84',viewer:'#8ba0b5'})[u.r]};border-color:${({admin:'#f0b429',kasi:'#4cc9f0',petugas:'#3ddc84',viewer:'#8ba0b5'})[u.r]}55">${u.r.toUpperCase()}</span></td>
+ <td>${u.active?'<span class="chip" style="color:var(--grn)">● Aktif</span>':'<span class="chip" style="color:var(--red)">● Nonaktif</span>'}</td>
+ <td class="mono" style="color:var(--dim);font-size:11px">${u.created}</td>
+ <td style="white-space:nowrap"><button class="ibtn" title="Reset password" onclick="resetPw('${u.u}')">🔑</button>
+ <button class="ibtn" title="Aktif/Nonaktif" onclick="tglUser('${u.u}')">${u.active?'🚫':'✅'}</button>
+ ${u.u!==SESSION.u&&!(u.r==='admin'&&USERS.filter(x=>x.r==='admin').length===1)?`<button class="ibtn" title="Hapus" onclick="delUser('${u.u}')">🗑</button>`:''}</td></tr>`).join('')}</table></div></div>`;
+}
+function openUserModal(){
+ openModal(`<div class="mh"><h3>＋ Tambah User Baru</h3><button class="x" onclick="closeModal()">✕</button></div><div class="mb">
+ <label>Nama Lengkap</label><input id="nuN" style="width:100%">
+ <label>Username</label><input id="nuU" style="width:100%">
+ <div class="frow"><div><label>Role</label><select id="nuR" style="width:100%"><option value="admin">Administrator</option><option value="kasi">Kasi Trantibum</option><option value="petugas" selected>Petugas</option><option value="viewer">Viewer</option></select></div>
+ <div><label>Password Awal</label><input id="nuP" type="password" style="width:100%"></div></div>
+ <button class="btn gold" style="margin-top:16px" onclick="addUser()">Simpan User</button></div>`);
+}
+function addUser(){
+ const n=$('#nuN').value.trim(),u=$('#nuU').value.trim(),p=$('#nuP').value;
+ if(!n||!u)return toast('Nama & username wajib','err');
+ if(USERS.find(x=>x.u===u))return toast('Username sudah dipakai','err');
+ if(p.length<5)return toast('Password minimal 5 karakter','err');
+ USERS.push({u,n,r:$('#nuR').value,p:hash(p),active:true,created:fmtISO(new Date())});
+ persist();closeModal();renderUsers();toast(`User ${u} ditambahkan`,'ok');
+}
+function resetPw(u){const p=prompt(`Password baru untuk "${u}":`);if(!p)return;if(p.length<5)return toast('Minimal 5 karakter','err');USERS.find(x=>x.u===u).p=hash(p);persist();toast('Password direset','ok')}
+function tglUser(u){const x=USERS.find(y=>y.u===u);if(x.u===SESSION.u)return toast('Tidak bisa menonaktifkan akun sendiri','err');x.active=!x.active;persist();renderUsers()}
+function delUser(u){if(!confirm('Hapus user '+u+'?'))return;USERS=USERS.filter(x=>x.u!==u);persist();renderUsers();toast('User dihapus','ok')}
+
+/* ================= SETTINGS & SYNC ================= */
+function renderSet(){
+ if($('#setUrl'))$('#setUrl').value=''; if($('#setAuto'))$('#setAuto').checked=true;
+ $('#gasCode').textContent=GAS_CODE;
+}
+function saveSettings(){SET.url='';SET.auto=$('#setAuto')?$('#setAuto').checked:true;persist();toast('Pengaturan backend disimpan','ok')}
+function updateSyncBadge(){const b=$('#syncBadge');if(!b)return;const r=$('#refreshBtn');b.className='sync-on';b.textContent='● BACKEND AKTIF';if(r)r.style.display=''}
+async function backendGet(action='all'){
+ if(window.google&&google.script&&google.script.run){return await new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).apiGet(action))}
+ throw new Error('Aplikasi harus dibuka dari Google Apps Script Web App');
+}
+async function backendPost(payload){
+ if(window.google&&google.script&&google.script.run){return await new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).apiPost(payload))}
+ throw new Error('Aplikasi harus dibuka dari Google Apps Script Web App');
+}
+async function refreshData(){await pullSheet(false);showView(CUR);if(mapInited)rebuildMap()}
+async function testSheet(){try{const j=await backendGet('ping');toast(j&&j.ok?'✅ Backend & Spreadsheet aktif':'❌ Respons backend tidak valid',j&&j.ok?'ok':'err')}catch(e){toast('❌ Backend gagal: '+e.message,'err')}}
+async function pullSheet(silent){
+ if(!silent)toast('Menarik data dari Spreadsheet…');
+ const j=await backendGet('all');
+ if(j&&j.incidents){INC=j.incidents.map(x=>{let tg=String(x.tanggal||'').slice(0,10);if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(tg)){const d=new Date(x.tanggal);if(!isNaN(d))tg=fmtISO(d)}return{id:String(x.id||''),tanggal:tg,jam:String(x.jam||'00:00').slice(0,5),zona:String(x.zona||''),lat:+x.lat||0,lng:+x.lng||0,jenis:normalizeType(x.jenis),sumber:String(x.sumber||''),dampak:Math.max(1,Math.min(3,+x.dampak||1)),berulang:x.berulang===true||/^(true|ya|1)$/i.test(String(x.berulang)),deskripsi:String(x.deskripsi||''),status:STATUS.includes(x.status)?x.status:'Laporan Masuk',foto:String(x.foto||''),petugas:String(x.petugas||''),updatedAt:x.updatedAt||Date.now()};}).filter(x=>x.id&&x.tanggal);LS.set('pr_inc',INC);updateSyncBadge();if(!silent)toast(INC.length+' kejadian dimuat dari Spreadsheet','ok');return INC.length}throw new Error('Respons backend tidak valid')}
+async function pushSheet(silent){try{const j=await backendPost({action:'bulk',incidents:INC});if(!silent)toast(`${j.count||INC.length} kejadian dikirim ke Spreadsheet`,'ok')}catch(e){if(!silent)toast('Gagal mengirim data: '+e.message,'err')}}
+async function sheetSave(i){try{const j=await backendPost({action:'save',incident:{...i,jenis:normalizeType(i.jenis)}});if(j&&j.foto)i.foto=j.foto}catch(e){toast('Data lokal tersimpan, tetapi sinkronisasi gagal','err')}}
+async function sheetDel(id){try{await backendPost({action:'delete',id})}catch(e){toast('Penghapusan lokal berhasil, sinkronisasi backend gagal','err')}}
+function connectSheetLogin(){pullSheet(false).then(n=>setConn('ok',n)).catch(e=>{setConn('err');toast('Backend belum siap: '+e.message,'err')})}
+function setConn(s,n){const e=$('#connStat');if(!e)return;if(s==='load'){e.textContent='⏳ menghubungkan ke backend…';e.style.color='var(--gold)'}else if(s==='ok'){e.innerHTML='✅ backend terhubung · <b>'+n+'</b> kejadian dimuat';e.style.color='var(--grn)'}else{e.textContent='❌ backend belum terhubung';e.style.color='var(--red)'}}
+function exportJSON(){dl('peta-rawan-trantib.json',new Blob([JSON.stringify({incidents:INC,weights:WEIGHTS,th:TH},null,1)],{type:'application/json'}));toast('Data diekspor','ok')}
+function importJSON(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.incidents){INC=d.incidents;if(d.weights)WEIGHTS=d.weights;persist();showView(CUR);toast('Data diimpor','ok')}}catch(err){toast('File tidak valid','err')}};rd.readAsText(f)}
+function copyGAS(){navigator.clipboard.writeText(GAS_CODE).then(()=>toast('Kode Apps Script disalin','ok'))}
+const GAS_CODE="/*******************************************************\n * SIPERAWAN TRANTIB \u2014 Backend Google Apps Script\n * Satpol PP Kabupaten Badung\n * Backend otomatis: Spreadsheet aktif menjadi sumber data.\n *******************************************************/\nvar SHEET_NAME='TRANTIB';\nvar FOLDER_NAME='FOTO_TRANTIB';\nvar HEAD=['id','tanggal','jam','zona','lat','lng','jenis','sumber','dampak','berulang','deskripsi','status','foto','petugas','updatedAt'];\nvar TYPES={\n 'Tertib Jalan dan Keselamatan Pejalan Kaki':1,\n 'Tertib Jalur Hijau, Taman dan Tempat Umum':1,\n 'Tertib Sungai, Saluran Air dan Kawasan Pesisir':1,\n 'Tertib Lingkungan':1,\n 'Tertib Bangunan':1,\n 'Tertib Usaha Pariwisata':1,\n 'Tertib Sosial':1,\n 'Tertib Kependudukan':1\n};\nvar ALIAS={\n 'PKL':'Tertib Jalan dan Keselamatan Pejalan Kaki','Reklame':'Tertib Jalur Hijau, Taman dan Tempat Umum','Bangunan':'Tertib Bangunan','Kerumunan':'Tertib Sosial','Fasilitas Umum':'Tertib Jalur Hijau, Taman dan Tempat Umum','Miras/Karaoke':'Tertib Usaha Pariwisata','Kebisingan':'Tertib Lingkungan','Lainnya':'Tertib Sosial'\n};\n\nfunction doGet(){\n  return HtmlService.createTemplateFromFile('index').evaluate()\n    .setTitle('SIPERAWAN TRANTIB \u2014 Satpol PP Kabupaten Badung')\n    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);\n}\nfunction setup(){\n  var sh=sheet_();\n  sh.getRange(1,1,1,HEAD.length).setValues([HEAD]).setFontWeight('bold').setBackground('#f0b429').setFontColor('#1a1204');\n  sh.setFrozenRows(1);sh.autoResizeColumns(1,HEAD.length);\n  normalizeSheet_();\n  return {ok:true,sheet:SHEET_NAME,count:rows_().length};\n}\nfunction sheet_(){var ss=SpreadsheetApp.getActiveSpreadsheet(),sh=ss.getSheetByName(SHEET_NAME);if(!sh)sh=ss.insertSheet(SHEET_NAME);if(sh.getLastRow()===0)sh.appendRow(HEAD);else sh.getRange(1,1,1,HEAD.length).setValues([HEAD]);return sh;}\nfunction folder_(){var it=DriveApp.getFoldersByName(FOLDER_NAME);return it.hasNext()?it.next():DriveApp.createFolder(FOLDER_NAME);}\nfunction dateStr_(v){if(v instanceof Date)return Utilities.formatDate(v,Session.getScriptTimeZone(),'yyyy-MM-dd');return String(v||'').slice(0,10);}\nfunction timeStr_(v){if(v instanceof Date)return Utilities.formatDate(v,Session.getScriptTimeZone(),'HH:mm');return String(v||'00:00').slice(0,5);}\nfunction normalizeType_(v){var x=String(v||'').trim();return TYPES[x]?x:(ALIAS[x]||'Tertib Sosial');}\nfunction rows_(){var sh=sheet_(),last=sh.getLastRow();if(last<2)return [];var v=sh.getRange(2,1,last-1,HEAD.length).getValues();return v.filter(function(r){return r[0]!==''&&r[0]!==null;}).map(function(r){var o={};HEAD.forEach(function(k,i){o[k]=r[i];});o.tanggal=dateStr_(o.tanggal);o.jam=timeStr_(o.jam);o.lat=Number(o.lat)||0;o.lng=Number(o.lng)||0;o.jenis=normalizeType_(o.jenis);o.dampak=Math.max(1,Math.min(3,Number(o.dampak)||1));o.berulang=o.berulang===true||/^(true|ya|1)$/i.test(String(o.berulang));o.status=['Laporan Masuk','Terverifikasi','Dalam Proses','Selesai','Pemantauan'].indexOf(String(o.status))>=0?String(o.status):'Laporan Masuk';return o;});}\nfunction normalizeSheet_(){var sh=sheet_(),data=rows_();if(!data.length)return 0;var out=data.map(rowOf_);sh.getRange(2,1,out.length,HEAD.length).setValues(out);return out.length;}\nfunction apiGet(action){\n  setup();\n  if(action==='ping')return {ok:true,time:new Date().toISOString(),sheet:SHEET_NAME};\n  var data=rows_();return {ok:true,count:data.length,incidents:data};\n}\nfunction save_(i){\n  i=i||{};i.id=String(i.id||('TRT-'+new Date().getTime()));i.tanggal=dateStr_(i.tanggal);i.jam=timeStr_(i.jam);i.jenis=normalizeType_(i.jenis);i.dampak=Math.max(1,Math.min(3,Number(i.dampak)||1));i.berulang=i.berulang===true||/^(true|ya|1)$/i.test(String(i.berulang));i.status=['Laporan Masuk','Terverifikasi','Dalam Proses','Selesai','Pemantauan'].indexOf(String(i.status))>=0?String(i.status):'Laporan Masuk';\n  if(i.foto&&String(i.foto).indexOf('data:')===0){try{var m=String(i.foto).match(/^data:(image\\/\\w+);base64,(.+)$/);if(m){var file=folder_().createFile(Utilities.newBlob(Utilities.base64Decode(m[2]),m[1],i.id+'.jpg'));file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);i.foto='https://drive.google.com/thumbnail?id='+file.getId()+'&sz=w800';}}catch(e){i.foto='';}}\n  var sh=sheet_(),all=rows_(),idx=-1;for(var k=0;k<all.length;k++)if(String(all[k].id)===i.id){idx=k;break;}\n  if(idx>=0)sh.getRange(idx+2,1,1,HEAD.length).setValues([rowOf_(i)]);else sh.appendRow(rowOf_(i));\n  return {ok:true,foto:i.foto||''};\n}\nfunction apiPost(b){\n  setup();b=b||{};\n  if(b.action==='save')return save_(b.incident);\n  if(b.action==='delete'){var sh=sheet_(),all=rows_();for(var k=0;k<all.length;k++)if(String(all[k].id)===String(b.id)){sh.deleteRow(k+2);break;}return {ok:true};}\n  if(b.action==='bulk'){var sh2=sheet_();sh2.clearContents();sh2.getRange(1,1,1,HEAD.length).setValues([HEAD]);var a=b.incidents||[];if(a.length){var out=a.map(rowOf_);sh2.getRange(2,1,out.length,HEAD.length).setValues(out);}return {ok:true,count:a.length};}\n  if(b.action==='seed'){return seedSheet_();}\n  return {ok:false,error:'aksi tidak dikenal'};\n}\nfunction rowOf_(i){return HEAD.map(function(k){var v=i[k];if(k==='tanggal')return dateStr_(v);if(k==='jam')return timeStr_(v);if(k==='jenis')return normalizeType_(v);return v===undefined||v===null?'':v;});}\nfunction seedSheet_(){\n  var sh=sheet_();var all=rows_();if(all.length)return {ok:true,count:all.length,created:false};\n  var zones=[['Kuta',-8.7135,115.1793],['Legian',-8.6889,115.1673],['Seminyak',-8.6726,115.1580],['Canggu',-8.6478,115.1385],['Dalung',-8.6610,115.1468],['Jimbaran',-8.7877,115.1683],['Benoa',-8.8208,115.2060],['Tanjung Benoa',-8.7677,115.2298],['Mengwi',-8.5876,115.2056],['Sempidi',-8.6006,115.1895],['Abiansemal',-8.5530,115.2050],['Petang',-8.4460,115.1790]];\n  var types=Object.keys(TYPES),src=['Hasil Patroli','Pengaduan Masyarakat','Laporan Petugas','Hasil Penertiban','Kegiatan Pengawasan'],out=[],now=new Date(),id=1001;\n  for(var d=0;d<90;d++){var dt=new Date(now);dt.setHours(0,0,0,0);dt.setDate(dt.getDate()-d);for(var j=0;j<3+(d%9===0?2:0);j++){var z=zones[(d*3+j*5)%zones.length],t=types[(d+j)%types.length],hh=7+((d*3+j*2)%15),mm=(j*17+d)%60;out.push(['TRT-'+(id++),Utilities.formatDate(dt,Session.getScriptTimeZone(),'yyyy-MM-dd'),('0'+hh).slice(-2)+':'+('0'+mm).slice(-2),z[0],z[1]+((j%3)-1)*.002,z[2]+((j%4)-1)*.002,t,src[(d+j)%src.length],1+((d+j)%3),j%4===0,'Data sampling untuk pengujian SIPERAWAN TRANTIB.',d<7?'Dalam Proses':d<21?'Pemantauan':'Selesai','', 'Petugas Sampling',new Date().toISOString()]);}}\n  sh.getRange(2,1,out.length,HEAD.length).setValues(out);return {ok:true,count:out.length,created:true};\n}\nfunction tambahDataSampling(){return seedSheet_();}\nfunction include(filename){return HtmlService.createHtmlOutputFromFile(filename).getContent();}\n";
+
+/* ================= MODAL / TOAST / CLOCK ================= */
+function openModal(html,wide){$('#modal').innerHTML='<div class="mbox'+(wide?' wide':'')+'">'+html+'</div>';$('#modal').classList.remove('hidden')}
+function closeModal(){$('#modal').classList.add('hidden');if(MODALMAP){MODALMAP.remove();MODALMAP=null;MODALMK=null}}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+function toast(msg,type){const t=document.createElement('div');t.className='toast '+(type||'');t.innerHTML=msg;$('#toasts').appendChild(t);setTimeout(()=>{t.style.opacity=0;t.style.transition='.4s';setTimeout(()=>t.remove(),400)},3600)}
+setInterval(()=>{const c=$('#clock');if(!c||$('#app').classList.contains('hidden'))return;
+ const f=new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Makassar',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
+ const d=new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Makassar',weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+ c.innerHTML=`<b>${f.replace(/\./g,':')}</b> WITA<br><span>${d.toUpperCase()}</span>`},1000);
+
+/* ================= BOOT: backend otomatis ================= */
+(async function boot(){loadAll();updateSyncBadge();$('#lgUrl').value='';setConn('load');try{const n=await pullSheet(true);setConn('ok',n)}catch(e){setConn('err');console.warn(e)}const ses=sessionStorage.getItem('pr_ses');if(ses){SESSION=JSON.parse(ses);enterApp()}})();
+</script>
+</body>
+</html>
