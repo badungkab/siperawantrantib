@@ -627,7 +627,7 @@ function showView(v){
  $('#v-'+v).classList.add('on');
  $('#tbTitle').innerHTML=`${TITLES[v]} <small>· KABUPATEN BADUNG</small>`;
  ({dash:renderDash,data:renderData,risk:renderRisk,rec:renderRec,warn:renderWarn,user:renderUsers,set:renderSet})[v]?.();
- if(v==='map')requestAnimationFrame(()=>{initMap();MAP.invalidateSize();rebuildMap()});
+ if(v==='map')requestAnimationFrame(()=>{try{initMap();if(MAP){setTimeout(()=>MAP.invalidateSize(true),120);rebuildMap()}}catch(e){console.error('Peta gagal dimuat:',e);showMapError('Peta gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.')}});
 }
 $$('.nav-it').forEach(n=>n.onclick=()=>showView(n.dataset.v));
 
@@ -709,24 +709,36 @@ async function loadSamplingToSheet(){if(!confirm('Isi Spreadsheet yang masih kos
 function clearLocal(){if(!confirm('Kosongkan data lokal? Data di Spreadsheet tidak terpengaruh.'))return;INC=[];persist();showView(CUR);toast('Data lokal dikosongkan','ok')}
 
 /* ================= MAP ================= */
-let MAP,G1,G2,mapInited=false;
+let MAP,G1,G2,mapInited=false,mapTileFallbackUsed=false;
 const ML={pts:true,risk:true,band:'Semua',types:new Set(Object.keys(TYPES))};
+function showMapError(msg){const el=$('#mapEl');if(el)el.innerHTML=`<div style="padding:24px;color:#f0b429;text-align:center;line-height:1.7">🗺️<br><b>${msg}</b><br><small>Pastikan internet aktif dan CDN Leaflet tidak diblokir.</small></div>`;}
+function addBaseTiles(){
+ if(!MAP||!window.L)return;
+ const primary=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:19});
+ primary.on('tileerror',()=>{if(mapTileFallbackUsed)return;mapTileFallbackUsed=true;try{MAP.removeLayer(primary);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19}).addTo(MAP)}catch(e){console.warn('Tile fallback gagal',e)}});
+ primary.addTo(MAP);
+}
 function initMap(){
- if(mapInited)return;mapInited=true;
- MAP=L.map('mapEl',{zoomControl:false}).setView([-8.67,115.17],11);
- L.control.zoom({position:'bottomright'}).addTo(MAP);
- L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19}).addTo(MAP);
- G1=L.layerGroup().addTo(MAP);G2=L.layerGroup().addTo(MAP);
- $('#bandSeg').innerHTML=['Semua','Pagi','Siang','Sore','Malam'].map(b=>`<button class="${b==='Semua'?'on':''}" onclick="setBand('${b}',this)">${b==='Semua'?'🕐 Semua':b+' · '+BANDH[b]}</button>`).join('');
- $('#typeChips').innerHTML=Object.entries(TYPES).map(([t,m])=>`<button class="tchip on" data-t="${t}" style="border-color:${m.c};background:${m.c};color:#0c1520" onclick="tglType('${t}',this)">${m.i} ${t}</button>`).join('');
- $('#legTypes').innerHTML=Object.entries(TYPES).slice(0,4).map(([t,m])=>`<span style="margin-right:8px"><span class="dot" style="background:${m.c}"></span> ${t}</span>`).join('');
+ if(mapInited&&MAP)return;
+ if(!window.L||typeof L.map!=='function'){showMapError('Library peta belum berhasil dimuat.');return;}
+ const el=$('#mapEl');if(!el)return;
+ try{
+   MAP=L.map(el,{zoomControl:false,preferCanvas:true}).setView([-8.67,115.17],11);
+   L.control.zoom({position:'bottomright'}).addTo(MAP);
+   addBaseTiles();
+   G1=L.layerGroup().addTo(MAP);G2=L.layerGroup().addTo(MAP);mapInited=true;
+   $('#bandSeg').innerHTML=['Semua','Pagi','Siang','Sore','Malam'].map(b=>`<button class="${b==='Semua'?'on':''}" onclick="setBand('${b}',this)">${b==='Semua'?'🕐 Semua':b+' · '+BANDH[b]}</button>`).join('');
+   $('#typeChips').innerHTML=Object.entries(TYPES).map(([t,m])=>`<button class="tchip on" data-t="${t}" style="border-color:${m.c};background:${m.c};color:#0c1520" onclick="tglType('${t}',this)">${m.i} ${t}</button>`).join('');
+   $('#legTypes').innerHTML=Object.entries(TYPES).slice(0,4).map(([t,m])=>`<span style="margin-right:8px"><span class="dot" style="background:${m.c}"></span> ${t}</span>`).join('');
+   setTimeout(()=>{if(MAP)MAP.invalidateSize(true)},150);
+ }catch(e){console.error('initMap error',e);mapInited=false;MAP=null;showMapError('Terjadi kendala saat menyiapkan peta. Coba muat ulang halaman.');}
 }
 function setBand(b,el){ML.band=b;$$('#bandSeg button').forEach(x=>x.classList.remove('on'));el.classList.add('on');rebuildMap()}
 function tglType(t,el){ML.types.has(t)?ML.types.delete(t):ML.types.add(t);el.classList.toggle('on');const c=TYPES[t].c;el.style.background=el.classList.contains('on')?c:'#0c1520';el.style.color=el.classList.contains('on')?'#0c1520':'var(--mut)';rebuildMap()}
 function tglCard(){$('#lc1').classList.toggle('on',$('#ly1').checked);$('#lc2').classList.toggle('on',$('#ly2').checked);$('#lc3').classList.toggle('on',$('#ly3').checked);$('#lc4').classList.toggle('on',$('#ly4').checked)}
-function fitBadung(){MAP.fitBounds([[-8.88,115.06],[-8.40,115.30]])}
+function fitBadung(){if(MAP)MAP.fitBounds([[-8.88,115.06],[-8.40,115.30]]);else initMap()}
 function rebuildMap(){
- if(!mapInited)return;G1.clearLayers();G2.clearLayers();
+ if(!mapInited||!MAP||!G1||!G2)return;G1.clearLayers();G2.clearLayers();
  const sc=computeScores();let shown=0;
  if($('#ly2').checked&&ML.risk)sc.forEach(s=>{
    if(s.f===0)return;const m=BANDS[s.band];
@@ -769,12 +781,13 @@ function gotoZone(n){showView('map');const z=ZONES.find(x=>x.n===n);if(z&&MAP)MA
 let MODALMAP=null,MODALMK=null;
 const PIN=L.divIcon({className:'',html:'<div style="font-size:27px;line-height:1;transform:translate(-5px,-26px);filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))">📍</div>',iconSize:[0,0],iconAnchor:[0,0]});
 function initMiniMap(lat,lng){
+ if(!window.L||typeof L.map!=='function'){const el=$('#miniMap');if(el)el.innerHTML='<div style="padding:16px;text-align:center;color:#f0b429">Peta lokasi tidak tersedia. Periksa koneksi internet.</div>';return;}
  setTimeout(()=>{
    const el=$('#miniMap');if(!el)return;
    if(MODALMAP){MODALMAP.remove();MODALMAP=null;MODALMK=null}
    const has=!(isNaN(lat)||isNaN(lng));
    MODALMAP=L.map('miniMap').setView(has?[lat,lng]:[-8.68,115.17],has?15:11);
-   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO'}).addTo(MODALMAP);
+   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:19}).addTo(MODALMAP);
    MODALMK=L.marker(has?[lat,lng]:[-8.68,115.17],{draggable:true,icon:PIN}).addTo(MODALMAP);
    MODALMK.on('dragend',()=>{const p=MODALMK.getLatLng();setCoord(p.lat,p.lng,false)});
    MODALMAP.on('click',e=>setCoord(e.latlng.lat,e.latlng.lng,true));
